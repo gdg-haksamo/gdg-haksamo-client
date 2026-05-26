@@ -21,9 +21,13 @@ export function Header({ title = '학사모', showBack = true }: HeaderProps) {
 
       <p className="text-[20px] font-extrabold leading-none text-black">{title}</p>
 
-      <div className="size-7 flex items-center justify-center">
+      <button
+        type="button"
+        onClick={() => navigate('/notice')}
+        className="flex size-7 items-center justify-center"
+      >
         <Gift size={28} className="text-red-500" />
-      </div>
+      </button>
     </header>
   )
 }
