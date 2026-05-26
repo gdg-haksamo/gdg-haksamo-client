@@ -10,7 +10,7 @@ export function Header({ title = '학사모', showBack = true }: HeaderProps) {
   const navigate = useNavigate()
 
   return (
-    <header className="flex h-[65px] w-full items-center justify-between bg-white px-5 py-2 shadow-[0px_2px_4px_0px_rgba(205,205,205,0.25)]">
+    <header className="sticky top-0 z-10 flex h-[65px] w-full items-center justify-between bg-white px-5 py-2 shadow-[0px_2px_4px_0px_rgba(205,205,205,0.25)]">
       <div className="size-7">
         {showBack && (
           <button type="button" onClick={() => navigate(-1)} aria-label="뒤로가기">
