@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import ScrollContainer from 'react-indiana-drag-scroll'
 
 const CAFETERIA_TABS = ['공식당', '복지관', '정보센터', '카페테리아 첨성'] as const
 
@@ -17,7 +18,7 @@ export default function CafeteriaTabMenu({ onChange }: CafeteriaTabMenuProps) {
   }
 
   return (
-    <div className="flex items-center justify-between">
+    <ScrollContainer className="flex gap-2">
       {CAFETERIA_TABS.map((tab) => {
         const isActive = activeTab === tab
         return (
@@ -25,7 +26,7 @@ export default function CafeteriaTabMenu({ onChange }: CafeteriaTabMenuProps) {
             key={tab}
             type="button"
             onClick={() => handleTabClick(tab)}
-            className={`rounded-[20px] px-4 py-2 text-[14px] font-semibold leading-none transition-colors ${
+            className={`shrink-0 whitespace-nowrap rounded-[20px] px-4 py-2 text-[14px] font-semibold leading-none transition-colors duration-75 ${
               isActive ? 'bg-[#e31e2d] text-white' : 'bg-[#f0f0f0] text-[#606060]'
             }`}
           >
@@ -33,6 +34,6 @@ export default function CafeteriaTabMenu({ onChange }: CafeteriaTabMenuProps) {
           </button>
         )
       })}
-    </div>
+    </ScrollContainer>
   )
 }
