@@ -10,12 +10,21 @@ export default function RecommendedMenuCard() {
   const menu = MOCK_RECOMMENDED_MENUS[menuIndex]
 
   const handleRefresh = () => {
+    if (MOCK_RECOMMENDED_MENUS.length === 0) return
     const nextIndex = (menuIndex + 1) % MOCK_RECOMMENDED_MENUS.length
     setMenuIndex(nextIndex)
   }
 
   const handleEdit = () => {
     setIsModalOpen(true)
+  }
+
+  if (!menu) {
+    return (
+      <div className="rounded-[12px] border border-[#f0f0f0] bg-white p-5">
+        <span className="text-[14px] text-[#606060]">추천 메뉴가 없습니다.</span>
+      </div>
+    )
   }
 
   return (
