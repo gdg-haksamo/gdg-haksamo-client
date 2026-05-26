@@ -1,13 +1,48 @@
 import type { MealMenuItemType } from '@/components/home/MealMenuItem'
 
-export const MOCK_RECOMMENDED_MENU = {
-  label: '오늘의 추천 메뉴',
-  name: '쟁반수육',
-  price: 8000,
-  rating: 102,
-  location: '공식당',
-  image: 'https://placehold.co/144x181/f0f0f0/a0a0a0?text=food',
+export type RecommendedMenuType = {
+  label: string
+  name: string
+  price: number
+  rating: number
+  location: string
+  image: string
 }
+
+export const MOCK_RECOMMENDED_MENUS: RecommendedMenuType[] = [
+  {
+    label: '오늘의 추천 메뉴',
+    name: '쟁반수육',
+    price: 8000,
+    rating: 102,
+    location: '공식당',
+    image: 'https://images.unsplash.com/photo-1569050467447-ce54b3bbc37d?w=144&h=181&fit=crop',
+  },
+  {
+    label: '오늘의 추천 메뉴',
+    name: '제육볶음',
+    price: 7000,
+    rating: 89,
+    location: '복지관',
+    image: 'https://images.unsplash.com/photo-1590301157890-4810ed352733?w=144&h=181&fit=crop',
+  },
+  {
+    label: '오늘의 추천 메뉴',
+    name: '된장찌개',
+    price: 6000,
+    rating: 74,
+    location: '정보센터',
+    image: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=144&h=181&fit=crop',
+  },
+  {
+    label: '오늘의 추천 메뉴',
+    name: '돈가스',
+    price: 8000,
+    rating: 115,
+    location: '공식당',
+    image: 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=144&h=181&fit=crop',
+  },
+]
 
 export const MOCK_BREAKFAST_ITEMS: MealMenuItemType[] = [
   { name: '된장찌개', rating: 4.5, price: 6000 },
