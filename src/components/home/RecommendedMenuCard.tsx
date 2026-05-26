@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { RefreshCw, Pencil, Star, MapPin } from 'lucide-react'
+import { AnimatePresence, motion } from 'framer-motion'
 import { MOCK_RECOMMENDED_MENUS } from '@/mocks/home'
 import FoodPreferenceModal from './FoodPreferenceModal'
 
@@ -31,30 +32,48 @@ export default function RecommendedMenuCard() {
     <>
       <div className="flex flex-col gap-4">
         <div className="relative overflow-hidden rounded-[12px] border border-[#f0f0f0] bg-white shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]">
-          <div className="flex h-[200px] flex-col px-5 py-[19px]">
-            <span className="text-[16px] font-semibold text-[#e31e2d]">{menu.label}</span>
-            <span className="mt-3 text-[32px] font-bold leading-none text-black">{menu.name}</span>
-            <span className="mt-[10px] text-[20px] font-bold leading-none text-black">
-              {menu.price.toLocaleString()}원
-            </span>
-            <div className="mt-auto flex items-center gap-3">
-              <div className="flex items-center">
-                <Star size={24} className="shrink-0 fill-[#FFBB00] text-[#FFBB00]" />
-                <span className="w-10 text-center text-[14px] font-medium tabular-nums text-black">
-                  {menu.rating}
-                </span>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={menuIndex}
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -24 }}
+              transition={{ duration: 0.25, ease: 'easeInOut' }}
+              className="flex h-[200px] flex-col px-5 py-[19px]"
+            >
+              <span className="text-[16px] font-semibold text-[#e31e2d]">{menu.label}</span>
+              <span className="mt-3 text-[32px] font-bold leading-none text-black">
+                {menu.name}
+              </span>
+              <span className="mt-[10px] text-[20px] font-bold leading-none text-black">
+                {menu.price.toLocaleString()}원
+              </span>
+              <div className="mt-auto flex items-center gap-3">
+                <div className="flex items-center">
+                  <Star size={24} className="shrink-0 fill-[#FFBB00] text-[#FFBB00]" />
+                  <span className="w-10 text-center text-[14px] font-medium tabular-nums text-black">
+                    {menu.rating}
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  <MapPin size={24} className="text-[#a0a0a0]" />
+                  <span className="px-2.5 text-[14px] font-medium text-black">{menu.location}</span>
+                </div>
               </div>
-              <div className="flex items-center">
-                <MapPin size={24} className="text-[#a0a0a0]" />
-                <span className="px-2.5 text-[14px] font-medium text-black">{menu.location}</span>
-              </div>
-            </div>
-          </div>
-          <img
-            src={menu.image}
-            alt={menu.name}
-            className="absolute right-0 top-2 h-[181px] w-[144px] object-cover"
-          />
+            </motion.div>
+          </AnimatePresence>
+          <AnimatePresence mode="wait">
+            <motion.img
+              key={menuIndex}
+              src={menu.image}
+              alt={menu.name}
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -24 }}
+              transition={{ duration: 0.25, ease: 'easeInOut' }}
+              className="absolute right-0 top-2 h-[181px] w-[144px] object-cover"
+            />
+          </AnimatePresence>
         </div>
 
         <div className="flex items-center gap-3">
@@ -63,7 +82,12 @@ export default function RecommendedMenuCard() {
             onClick={handleRefresh}
             className="flex h-[40px] flex-1 items-center justify-center gap-2 rounded-[12px] bg-[#f0f0f0]"
           >
-            <RefreshCw size={20} className="text-black" />
+            <motion.div
+              animate={{ rotate: menuIndex * -360 }}
+              transition={{ duration: 0.25, ease: 'easeInOut' }}
+            >
+              <RefreshCw size={20} className="text-black" />
+            </motion.div>
             <span className="text-[14px] font-medium text-black">추천 메뉴 새로고침</span>
           </button>
           <button
