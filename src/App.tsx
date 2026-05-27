@@ -2,6 +2,7 @@ import { Route, Routes } from 'react-router-dom'
 import DefaultLayout from '@/components/layouts/DefaultLayout'
 import HomePage from '@/pages/HomePage'
 import MyPage from '@/pages/MyPage'
+import NoticePage from '@/pages/NoticePage'
 
 function App() {
   return (
@@ -9,6 +10,7 @@ function App() {
       <Route element={<DefaultLayout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/my" element={<MyPage />} />
+        <Route path="/notice" element={<NoticePage />} />
       </Route>
     </Routes>
   )
