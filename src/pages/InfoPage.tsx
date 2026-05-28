@@ -1,7 +1,13 @@
 import MealInfo from '@/components/info/MealInfo'
 import RestaurantInfo from '@/components/info/RestaurantInfo'
 import NutritionInfo from '@/components/info/NutritionInfo'
-import { MOCK_MEAL_INFO, MOCK_RESTAURANT_INFO, MOCK_NUTRITION_INFO } from '@/mocks/info'
+import CurrentReview from '@/components/info/CurrentReview'
+import {
+  MOCK_MEAL_INFO,
+  MOCK_RESTAURANT_INFO,
+  MOCK_NUTRITION_INFO,
+  MOCK_REVIEWS,
+} from '@/mocks/info'
 
 export default function InfoPage() {
   return (
@@ -9,6 +15,7 @@ export default function InfoPage() {
       <MealInfo {...MOCK_MEAL_INFO} />
       <RestaurantInfo {...MOCK_RESTAURANT_INFO} />
       <NutritionInfo {...MOCK_NUTRITION_INFO} />
+      <CurrentReview reviews={MOCK_REVIEWS} />
     </div>
   )
 }
