@@ -25,7 +25,7 @@ export default function MealInfo({
       )}
 
       <div className="flex items-center justify-between px-2">
-        <div className="flex flex-col items-start justify-center gap-2">
+        <div className="flex flex-col items-start justify-center gap-1">
           <div className="text-[24px] font-bold text-black">{name}</div>
           <div className="flex items-center gap-3">
             <StarRating rating={rating} size={16} />
@@ -34,7 +34,7 @@ export default function MealInfo({
           </div>
         </div>
 
-        <span className="shrink-0 rounded-[50px] bg-[#E31E2D] px-7 py-3 text-[14px] font-bold text-white">
+        <span className="shrink-0 rounded-[50px] bg-[#E31E2D] px-6 py-3 text-[14px] font-bold text-white">
           {price.toLocaleString()} 원
         </span>
       </div>
