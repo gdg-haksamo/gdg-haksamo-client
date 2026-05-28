@@ -31,7 +31,7 @@ export const MOCK_MEAL_INFO: MealInfoData = {
   image: 'https://images.unsplash.com/photo-1569050467447-ce54b3bbc37d?w=600&h=400&fit=crop',
   name: '쟁반수육',
   price: 8000,
-  rating: 5.0,
+  rating: 4.0,
   reviewCount: 54,
   aiDescription: '부드럽게 삶은 돼지고기를 얇게 썰어 신선한 채소와 함께 즐기는 풍성한 한상',
 }
