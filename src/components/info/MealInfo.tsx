@@ -1,6 +1,6 @@
 import { Sparkles } from 'lucide-react'
 import type { MealInfoData } from '@/mocks/info'
-import StarRating from './StarRation'
+import StarRating from './StarRating'
 
 type MealInfoProps = MealInfoData
 
