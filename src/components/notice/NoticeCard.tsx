@@ -2,13 +2,11 @@ import { ChevronRight } from 'lucide-react'
 import type { NoticeItem, NoticeTag } from '@/mocks/notice'
 
 const TAG_STYLE: Record<NoticeTag, string> = {
-  중요: 'bg-[#e31e2d] text-white',
   공지: 'bg-white/20 text-white backdrop-blur-sm',
   이벤트: 'bg-[#ffedd4] text-[#f54a00]',
 }
 
 const TAG_STYLE_COMPACT: Record<NoticeTag, string> = {
-  중요: 'bg-[#e31e2d] text-white',
   공지: 'bg-[#f0f0f0] text-[#606060]',
   이벤트: 'bg-[#ffedd4] text-[#f54a00]',
 }
@@ -18,7 +16,6 @@ type NoticeCardProps = {
 }
 
 export default function NoticeCard({ item }: NoticeCardProps) {
-  const isImportant = item.tags.includes('중요')
   const isEvent = item.type === 'event'
 
   if (item.image) {
@@ -51,7 +48,7 @@ export default function NoticeCard({ item }: NoticeCardProps) {
     )
   }
 
-  const accentColor = isImportant || isEvent ? 'bg-[#e31e2d]' : 'bg-[#e0e0e0]'
+  const accentColor = isEvent ? 'bg-[#e31e2d]' : 'bg-[#e0e0e0]'
 
   return (
     <a
