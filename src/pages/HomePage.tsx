@@ -10,9 +10,9 @@ function getCurrentMealType() {
   return '아침'
 }
 
-const currentMeal = getCurrentMealType()
-
 export default function HomePage() {
+  const currentMeal = getCurrentMealType()
+
   return (
     <div className="flex flex-col gap-4 px-5 py-4">
       <RecommendedMenuCard />
