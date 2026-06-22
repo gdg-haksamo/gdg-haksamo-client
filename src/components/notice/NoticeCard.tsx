@@ -1,9 +1,13 @@
-import { ChevronRight, Megaphone, Gift } from 'lucide-react'
+import { ChevronRight } from 'lucide-react'
 import type { NoticeItem, NoticeTag } from '@/mocks/notice'
 
 const TAG_STYLE: Record<NoticeTag, string> = {
-  중요: 'bg-[#e31e2d] text-white',
-  공지: 'bg-[#f0f0f0] text-[#a0a0a0]',
+  공지: 'bg-white/20 text-white backdrop-blur-sm',
+  이벤트: 'bg-[#ffedd4] text-[#f54a00]',
+}
+
+const TAG_STYLE_COMPACT: Record<NoticeTag, string> = {
+  공지: 'bg-[#f0f0f0] text-[#606060]',
   이벤트: 'bg-[#ffedd4] text-[#f54a00]',
 }
 
@@ -14,46 +18,62 @@ type NoticeCardProps = {
 export default function NoticeCard({ item }: NoticeCardProps) {
   const isEvent = item.type === 'event'
 
-  const Icon = isEvent ? Gift : Megaphone
-  const iconBg = isEvent ? 'bg-[#fce8ea]' : 'bg-[#f0f0f0]'
-  const iconColor = isEvent ? 'text-[#e31e2d]' : 'text-[#a0a0a0]'
+  if (item.image) {
+    return (
+      <a
+        href={item.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block overflow-hidden rounded-[16px] shadow-[0px_6px_16px_0px_rgba(0,0,0,0.14)]"
+      >
+        <div className="relative h-[200px]">
+          <img src={item.image} alt={item.title} className="h-full w-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 p-4">
+            <div className="mb-2 flex gap-1.5">
+              {item.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${TAG_STYLE[tag]}`}
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+            <p className="text-[15px] font-bold leading-snug text-white">{item.title}</p>
+            <p className="mt-1 text-[11px] text-white/60">{item.date}</p>
+          </div>
+        </div>
+      </a>
+    )
+  }
+
+  const accentColor = isEvent ? 'bg-[#e31e2d]' : 'bg-[#e0e0e0]'
 
   return (
     <a
       href={item.url}
       target="_blank"
       rel="noopener noreferrer"
-      className="block w-full overflow-hidden rounded-[12px] border border-[#f0f0f0] bg-white shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]"
+      className="flex overflow-hidden rounded-[12px] bg-white shadow-[0px_2px_8px_0px_rgba(0,0,0,0.08)]"
     >
-      {item.image && (
-        <img src={item.image} alt={item.title} className="h-[140px] w-full object-cover" />
-      )}
-
-      <div className="flex h-[80px] items-center justify-between px-[15px]">
-        <div className="flex items-start gap-3">
-          <div
-            className={`flex shrink-0 size-[28px] items-center justify-center rounded-full ${iconBg}`}
-          >
-            <Icon size={16} className={iconColor} />
+      <div className={`w-1 shrink-0 ${accentColor}`} />
+      <div className="flex flex-1 items-center justify-between px-4 py-[18px]">
+        <div className="flex flex-col gap-1">
+          <div className="flex gap-1.5">
+            {item.tags.map((tag) => (
+              <span
+                key={tag}
+                className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${TAG_STYLE_COMPACT[tag]}`}
+              >
+                {tag}
+              </span>
+            ))}
           </div>
-
-          <div className="flex flex-col items-start">
-            <div className="flex gap-[5px]">
-              {item.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className={`rounded-[20px] px-2 py-1 text-[10px] font-semibold ${TAG_STYLE[tag]}`}
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-            <span className="mt-1 text-[12px] font-semibold text-black">{item.title}</span>
-            <span className="text-[10px] text-[#a0a0a0]">{item.date}</span>
-          </div>
+          <p className="text-[14px] font-semibold leading-snug text-black">{item.title}</p>
+          <p className="text-[11px] text-[#a0a0a0]">{item.date}</p>
         </div>
-
-        <ChevronRight size={20} className="shrink-0 text-[#a0a0a0]" />
+        <ChevronRight size={18} className="ml-3 shrink-0 text-[#c0c0c0]" />
       </div>
     </a>
   )
