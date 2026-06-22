@@ -42,7 +42,7 @@ export default function ReviewCard({ review }: ReviewCardProps) {
         </span>
       </div>
 
-      <p className="text-[12px] font-regular text-black">{review.content}</p>
+      {review.content && <p className="text-[12px] font-regular text-black">{review.content}</p>}
 
       <button
         type="button"

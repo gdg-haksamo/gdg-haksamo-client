@@ -15,6 +15,13 @@ export type ReviewItem = {
 
 export const REVIEW_RESTAURANTS: Restaurant[] = ['공식당', '정보센터', '복지관', '카페테리아 첨성']
 
+export const RESTAURANT_MENUS: Record<Restaurant, string[]> = {
+  공식당: ['쟁반수육', '돈가스', '제육볶음', '치킨난반&매콤볶음밥'],
+  정보센터: ['비빔밥', '된장찌개', '잡채', '계란후라이'],
+  복지관: ['돈가스', '제육볶음', '김치볶음밥', '순두부찌개'],
+  '카페테리아 첨성': ['샐러드', '라면', '땡초우동&주먹밥'],
+}
+
 export const REVIEW_SORT_OPTIONS: ReviewSort[] = ['최신순', '인기순', '별점높은순', '별점낮은순']
 
 export const MOCK_REVIEWS: ReviewItem[] = [
