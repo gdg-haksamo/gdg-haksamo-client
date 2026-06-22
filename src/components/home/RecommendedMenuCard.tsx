@@ -11,18 +11,12 @@ export default function RecommendedMenuCard() {
   const menu = MOCK_RECOMMENDED_MENUS[menuIndex]
 
   const handleRefresh = () => {
-    if (MOCK_RECOMMENDED_MENUS.length === 0) return
-    const nextIndex = (menuIndex + 1) % MOCK_RECOMMENDED_MENUS.length
-    setMenuIndex(nextIndex)
-  }
-
-  const handleEdit = () => {
-    setIsModalOpen(true)
+    setMenuIndex((prev) => (prev + 1) % MOCK_RECOMMENDED_MENUS.length)
   }
 
   if (!menu) {
     return (
-      <div className="rounded-[12px] border border-[#f0f0f0] bg-white p-5">
+      <div className="rounded-[16px] bg-white p-5 shadow-[0px_4px_16px_0px_rgba(0,0,0,0.08)]">
         <span className="text-[14px] text-[#606060]">추천 메뉴가 없습니다.</span>
       </div>
     )
@@ -30,8 +24,8 @@ export default function RecommendedMenuCard() {
 
   return (
     <>
-      <div className="flex flex-col gap-4">
-        <div className="relative overflow-hidden rounded-[12px] border border-[#f0f0f0] bg-white shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]">
+      <div className="flex flex-col gap-3">
+        <div className="relative overflow-hidden rounded-[16px] bg-gradient-to-br from-white via-white to-[#fff0f0] shadow-[0px_4px_16px_0px_rgba(0,0,0,0.1)]">
           <AnimatePresence mode="wait">
             <motion.div
               key={menuIndex}
@@ -39,29 +33,32 @@ export default function RecommendedMenuCard() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -24 }}
               transition={{ duration: 0.25, ease: 'easeInOut' }}
-              className="flex h-[200px] flex-col px-5 py-[19px]"
+              className="flex h-[200px] flex-col px-5 py-5 pr-[160px]"
             >
-              <span className="text-[16px] font-semibold text-[#e31e2d]">{menu.label}</span>
-              <span className="mt-3 text-[32px] font-bold leading-none text-black">
+              <span className="text-[12px] font-bold tracking-wide text-[#e31e2d]">
+                {menu.label}
+              </span>
+              <span className="mt-2 text-[28px] font-bold leading-tight text-black">
                 {menu.name}
               </span>
-              <span className="mt-[10px] text-[20px] font-bold leading-none text-black">
+              <span className="mt-1.5 text-[18px] font-bold leading-none text-[#333]">
                 {menu.price.toLocaleString()}원
               </span>
               <div className="mt-auto flex items-center gap-3">
-                <div className="flex items-center">
-                  <Star size={24} className="shrink-0 fill-[#FFBB00] text-[#FFBB00]" />
-                  <span className="w-10 text-center text-[14px] font-medium tabular-nums text-black">
-                    {menu.rating}
+                <div className="flex items-center gap-1">
+                  <Star size={14} className="fill-[#FFBB00] text-[#FFBB00]" />
+                  <span className="text-[13px] font-semibold tabular-nums text-[#333]">
+                    {menu.rating.toFixed(1)}
                   </span>
                 </div>
-                <div className="flex items-center">
-                  <MapPin size={24} className="text-[#a0a0a0]" />
-                  <span className="px-2.5 text-[14px] font-medium text-black">{menu.location}</span>
+                <div className="flex items-center gap-1">
+                  <MapPin size={14} className="text-[#a0a0a0]" />
+                  <span className="text-[13px] font-medium text-[#606060]">{menu.location}</span>
                 </div>
               </div>
             </motion.div>
           </AnimatePresence>
+
           <AnimatePresence mode="wait">
             <motion.img
               key={menuIndex}
@@ -71,41 +68,38 @@ export default function RecommendedMenuCard() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -24 }}
               transition={{ duration: 0.25, ease: 'easeInOut' }}
-              className="absolute right-0 top-2 h-[181px] w-[144px] object-cover"
+              className="absolute right-0 top-0 h-full w-[148px] object-cover"
             />
           </AnimatePresence>
+
+          <button
+            type="button"
+            onClick={() => setIsModalOpen(true)}
+            className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-full bg-white/80 shadow-sm backdrop-blur-sm"
+          >
+            <Pencil size={13} className="text-[#606060]" />
+          </button>
         </div>
 
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={handleRefresh}
-            className="flex h-[40px] flex-1 items-center justify-center gap-2 rounded-[12px] bg-[#f0f0f0]"
+        <button
+          type="button"
+          onClick={handleRefresh}
+          className="flex h-[44px] w-full items-center justify-center gap-2 rounded-[12px] bg-[#f5f5f5] transition-colors active:bg-[#ebebeb]"
+        >
+          <motion.div
+            animate={{ rotate: menuIndex * -360 }}
+            transition={{ duration: 0.25, ease: 'easeInOut' }}
           >
-            <motion.div
-              animate={{ rotate: menuIndex * -360 }}
-              transition={{ duration: 0.25, ease: 'easeInOut' }}
-            >
-              <RefreshCw size={20} className="text-black" />
-            </motion.div>
-            <span className="text-[14px] font-medium text-black">추천 메뉴 새로고침</span>
-          </button>
-          <button
-            type="button"
-            onClick={handleEdit}
-            className="flex h-[40px] w-[80px] items-center justify-center rounded-[12px] bg-[#f0f0f0]"
-          >
-            <Pencil size={24} className="text-black" />
-          </button>
-        </div>
+            <RefreshCw size={18} className="text-[#333]" />
+          </motion.div>
+          <span className="text-[14px] font-semibold text-[#333]">추천 메뉴 새로고침</span>
+        </button>
       </div>
 
       {isModalOpen && (
         <FoodPreferenceModal
           onClose={() => setIsModalOpen(false)}
-          onSave={() => {
-            setIsModalOpen(false)
-          }}
+          onSave={() => setIsModalOpen(false)}
         />
       )}
     </>
