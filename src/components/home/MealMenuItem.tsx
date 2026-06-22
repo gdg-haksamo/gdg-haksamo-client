@@ -16,21 +16,23 @@ export default function MealMenuItem({
   isPopular = false,
 }: MealMenuItemProps) {
   return (
-    <div className="flex h-[40px] items-center justify-between border border-[#f0f0f0] px-5">
+    <div className="flex items-center justify-between border-b border-[#f5f5f5] px-5 py-3.5 last:border-b-0">
       <div className="flex items-center gap-2">
-        <span className="text-[12px] font-semibold text-black">{name}</span>
+        <span className="text-[13px] font-semibold text-black">{name}</span>
         {isPopular && (
-          <span className="rounded-[20px] bg-[#fce8ea] px-2 py-1 text-[10px] font-semibold text-[#e31e2d]">
+          <span className="rounded-full bg-[#fce8ea] px-2 py-0.5 text-[10px] font-bold text-[#e31e2d]">
             인기
           </span>
         )}
       </div>
-      <div className="flex items-center gap-5">
+      <div className="flex items-center gap-4">
         <div className="flex items-center gap-1">
-          <Star size={16} className="fill-[#FFBB00] text-[#FFBB00]" />
-          <span className="text-[12px] font-semibold text-black">{rating.toFixed(1)}</span>
+          <Star size={13} className="fill-[#FFBB00] text-[#FFBB00]" />
+          <span className="text-[12px] font-medium text-[#808080]">{rating.toFixed(1)}</span>
         </div>
-        <span className="text-[12px] font-semibold text-black">{price.toLocaleString()}원</span>
+        <span className="min-w-[52px] text-right text-[13px] font-semibold text-[#333]">
+          {price.toLocaleString()}원
+        </span>
       </div>
     </div>
   )
