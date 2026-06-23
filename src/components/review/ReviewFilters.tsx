@@ -1,4 +1,4 @@
-import { Search } from 'lucide-react'
+import { ChevronDown, Search } from 'lucide-react'
 import type { ReviewSort } from '@/mocks/review'
 import { RESTAURANT_TABS, type RestaurantTab } from '@/components/review/reviewFilterUtils'
 
@@ -52,17 +52,23 @@ export default function ReviewFilters({
           />
         </div>
 
-        <select
-          value={sort}
-          onChange={(e) => onSortChange(e.target.value as ReviewSort)}
-          className="h-[34px] rounded-[12px] bg-white px-3 text-[12px] font-semibold text-[#606060] border border-[#F0F0F0] outline-none"
-        >
-          {SORT_LABELS.map((label) => (
-            <option key={label} value={label}>
-              {label}
-            </option>
-          ))}
-        </select>
+        <div className="relative">
+          <select
+            value={sort}
+            onChange={(e) => onSortChange(e.target.value as ReviewSort)}
+            className="h-[34px] appearance-none rounded-[12px] border border-[#F0F0F0] bg-white pl-3 pr-10 text-[12px] font-semibold text-[#606060] outline-none"
+          >
+            {SORT_LABELS.map((label) => (
+              <option key={label} value={label}>
+                {label}
+              </option>
+            ))}
+          </select>
+          <ChevronDown
+            size={16}
+            className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#606060]"
+          />
+        </div>
       </div>
     </div>
   )

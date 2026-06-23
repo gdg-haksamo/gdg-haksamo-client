@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Camera, Star, X } from 'lucide-react'
+import { Camera, ChevronDown, Star, X } from 'lucide-react'
 import { RESTAURANT_MENUS, REVIEW_RESTAURANTS, type Restaurant } from '@/mocks/review'
 
 export type ReviewWriteFormData = {
@@ -14,7 +14,8 @@ type ReviewWriteModalProps = {
   onSubmit: (data: ReviewWriteFormData) => void
 }
 
-const SELECT_CLASS = 'h-[40px] w-full rounded-[12px] bg-[#F0F0F0] px-3 text-[12px] outline-none'
+const SELECT_CLASS =
+  'h-[40px] w-full appearance-none rounded-[12px] bg-[#F0F0F0] pl-3 pr-10 text-[12px] outline-none'
 
 export default function ReviewWriteModal({ onClose, onSubmit }: ReviewWriteModalProps) {
   const [restaurant, setRestaurant] = useState<Restaurant | ''>('')
@@ -60,35 +61,47 @@ export default function ReviewWriteModal({ onClose, onSubmit }: ReviewWriteModal
         <div className="flex gap-5">
           <div className="flex flex-1 flex-col gap-2">
             <label className="text-[14px] font-semibold text-black">식당 선택</label>
-            <select
-              value={restaurant}
-              onChange={(e) => handleRestaurantChange(e.target.value as Restaurant | '')}
-              className={`${SELECT_CLASS} ${restaurant ? 'text-black' : 'text-[#A0A0A0]'}`}
-            >
-              <option value="">식당을 선택하세요</option>
-              {REVIEW_RESTAURANTS.map((name) => (
-                <option key={name} value={name}>
-                  {name}
-                </option>
-              ))}
-            </select>
+            <div className="relative">
+              <select
+                value={restaurant}
+                onChange={(e) => handleRestaurantChange(e.target.value as Restaurant | '')}
+                className={`${SELECT_CLASS} ${restaurant ? 'text-black' : 'text-[#A0A0A0]'}`}
+              >
+                <option value="">식당을 선택하세요</option>
+                {REVIEW_RESTAURANTS.map((name) => (
+                  <option key={name} value={name}>
+                    {name}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown
+                size={16}
+                className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#606060]"
+              />
+            </div>
           </div>
 
           <div className="flex flex-1 flex-col gap-2">
             <label className="text-[14px] font-semibold text-black">메뉴 선택</label>
-            <select
-              value={menuName}
-              onChange={(e) => setMenuName(e.target.value)}
-              disabled={!restaurant}
-              className={`${SELECT_CLASS} ${menuName ? 'text-black' : 'text-[#A0A0A0]'}`}
-            >
-              <option value="">메뉴를 선택하세요</option>
-              {menuOptions.map((name) => (
-                <option key={name} value={name}>
-                  {name}
-                </option>
-              ))}
-            </select>
+            <div className="relative">
+              <select
+                value={menuName}
+                onChange={(e) => setMenuName(e.target.value)}
+                disabled={!restaurant}
+                className={`${SELECT_CLASS} ${menuName ? 'text-black' : 'text-[#A0A0A0]'}`}
+              >
+                <option value="">메뉴를 선택하세요</option>
+                {menuOptions.map((name) => (
+                  <option key={name} value={name}>
+                    {name}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown
+                size={16}
+                className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#606060]"
+              />
+            </div>
           </div>
         </div>
 
