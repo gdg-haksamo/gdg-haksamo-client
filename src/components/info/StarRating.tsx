@@ -9,7 +9,7 @@ export default function StarRating({ rating, size = 16 }: StarRatingProps) {
   const fullStars = Math.floor(rating)
 
   return (
-    <div className="flex items-center">
+    <div className="flex items-center gap-1">
       {Array.from({ length: 5 }).map((_, index) => (
         <Star
           key={index}

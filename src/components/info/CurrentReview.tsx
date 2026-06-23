@@ -1,6 +1,6 @@
 import { ChevronRight, User } from 'lucide-react'
 import type { ReviewItem } from '@/mocks/info'
-import StarRating from './StarRation'
+import StarRating from './StarRating'
 
 type CurrentReviewProps = {
   reviews: ReviewItem[]
