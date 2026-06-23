@@ -5,12 +5,14 @@ import InfoPage from '@/pages/InfoPage'
 import ReviewPage from '@/pages/ReviewPage'
 import MyPage from '@/pages/MyPage'
 import NoticePage from '@/pages/NoticePage'
+import SearchPage from '@/pages/SearchPage'
 
 function App() {
   return (
     <Routes>
       <Route element={<DefaultLayout />}>
         <Route path="/" element={<HomePage />} />
+        <Route path="/search" element={<SearchPage />} />
         <Route path="/info" element={<InfoPage />} />
         <Route path="/review" element={<ReviewPage />} />
         <Route path="/my" element={<MyPage />} />
