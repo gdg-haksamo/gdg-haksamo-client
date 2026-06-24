@@ -77,7 +77,7 @@ export default function RecommendedMenuCard({ refreshRef }: Props) {
     }, 2800)
   }
 
-  const { mutate } = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: refreshRecommendation,
     onMutate: () => {
       setShowOverlay(true)
@@ -98,8 +98,13 @@ export default function RecommendedMenuCard({ refreshRef }: Props) {
   })
 
   useEffect(() => {
-    refreshRef.current = () => mutate(undefined)
-  }, [mutate, refreshRef])
+    refreshRef.current = () => {
+      if (isPending) return
+      const latest = recsRef.current[recsRef.current.length - 1]
+      if (latest && latest.refreshCount >= latest.totalCount) return
+      mutate(undefined)
+    }
+  }, [mutate, isPending, refreshRef])
 
   useEffect(() => {
     return () => {
