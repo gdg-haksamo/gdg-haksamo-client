@@ -6,7 +6,7 @@ import CafeteriaTabMenu from '@/components/home/CafeteriaTabMenu'
 import MealCard from '@/components/home/MealCard'
 import RecommendedMenuCard from '@/components/home/RecommendedMenuCard'
 import type { MealMenuItemType } from '@/components/home/MealMenuItem'
-import { getMenus } from '@/apis/menus'
+import { getMenus } from '@/apis/modules/menus'
 import type { MenuResponse } from '@/apis/types'
 import { MOCK_RECOMMENDED_MENUS } from '@/mocks/home'
 

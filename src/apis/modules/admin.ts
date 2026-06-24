@@ -1,5 +1,5 @@
-import { httpDelete, httpGet, httpPatch, httpPost, httpPut } from './http'
-import { ENDPOINTS } from './endpoints'
+import { httpDelete, httpGet, httpPatch, httpPost, httpPut } from '../http'
+import { ENDPOINTS } from '../endpoints'
 import type {
   AdminUserListResponse,
   CreateMenuRequest,
@@ -11,7 +11,7 @@ import type {
   ResetPasswordRequest,
   UpdateMenuRequest,
   UpdateUserRoleRequest,
-} from './types'
+} from '../types'
 
 // ── User Management ───────────────────────────────────────────────────────────
 

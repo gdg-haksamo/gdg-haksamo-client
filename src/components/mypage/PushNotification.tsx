@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Gift, Moon, Sun, Utensils, type LucideIcon } from 'lucide-react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getMyPage, updateNotificationSettings } from '@/apis/me'
+import { getMyPage, updateNotificationSettings } from '@/apis/modules/me'
 import type { NotificationSettingsUpdateRequest } from '@/apis/types'
 
 type NotificationId = 'morning' | 'lunch' | 'dinner' | 'event'

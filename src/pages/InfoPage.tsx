@@ -5,7 +5,7 @@ import RestaurantInfo from '@/components/info/RestaurantInfo'
 import NutritionInfo from '@/components/info/NutritionInfo'
 import CurrentReview from '@/components/info/CurrentReview'
 import type { ReviewItem } from '@/mocks/info'
-import { getMenuDetail } from '@/apis/menus'
+import { getMenuDetail } from '@/apis/modules/menus'
 import type { PopularReviewResponse } from '@/apis/types'
 
 function formatDate(iso: string): string {

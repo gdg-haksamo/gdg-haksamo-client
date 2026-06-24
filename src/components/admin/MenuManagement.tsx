@@ -7,7 +7,7 @@ import {
   getAdminMenus,
   toggleSoldOut,
   updateAdminMenu,
-} from '@/apis/admin'
+} from '@/apis/modules/admin'
 import type { ManagedMenuResponse, MealTime } from '@/apis/types'
 
 const MEAL_TIME_LABEL: Record<MealTime, string> = {

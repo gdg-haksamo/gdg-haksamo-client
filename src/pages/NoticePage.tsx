@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import SegmentTabMenu from '@/components/notice/SegmentTabMenu'
 import NoticeCard from '@/components/notice/NoticeCard'
-import { getEvents } from '@/apis/events'
+import { getEvents } from '@/apis/modules/events'
 import type { NoticeItem } from '@/mocks/notice'
 import hobanWoo from '@/assets/hoban-woo.svg'
 

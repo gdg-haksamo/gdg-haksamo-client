@@ -1,7 +1,7 @@
 import { LogOut, ShieldCheck } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
-import { logout } from '@/apis/auth'
+import { logout } from '@/apis/modules/auth'
 import { setAccessToken } from '@/apis/http'
 import { useAuthStore } from '@/store/authStore'
 import { ProfileCard } from '@/components/mypage/ProfileCard'
