@@ -5,6 +5,9 @@ declare module 'axios' {
   interface InternalAxiosRequestConfig {
     skipRefresh?: boolean
   }
+  interface AxiosRequestConfig {
+    skipRefresh?: boolean
+  }
 }
 import { ApiError } from './error'
 import { ENDPOINTS } from './endpoints'
