@@ -1,6 +1,7 @@
 import { Sparkles } from 'lucide-react'
 import type { MealInfoData } from '@/mocks/info'
 import StarRating from './StarRating'
+import hobanWoo from '@/assets/hoban-woo.svg'
 
 type MealInfoProps = MealInfoData
 
@@ -22,7 +23,9 @@ export default function MealInfo({
           className="h-[200px] w-full rounded-[12px] bg-[#F0F0F0] object-cover"
         />
       ) : (
-        <div className="h-[200px] w-full rounded-[12px] bg-[#F0F0F0]" />
+        <div className="flex h-[200px] w-full items-center justify-center rounded-[12px] bg-[#fce8ea]">
+          <img src={hobanWoo} alt="" className="h-28 w-auto opacity-80" draggable={false} />
+        </div>
       )}
 
       <div className="flex items-center justify-between px-2">
