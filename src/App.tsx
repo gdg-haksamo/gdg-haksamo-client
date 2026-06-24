@@ -44,7 +44,14 @@ function App() {
             </PrivateRoute>
           }
         />
-        <Route path="/notice" element={<NoticePage />} />
+        <Route
+          path="/notice"
+          element={
+            <PrivateRoute>
+              <NoticePage />
+            </PrivateRoute>
+          }
+        />
       </Route>
     </Routes>
   )
