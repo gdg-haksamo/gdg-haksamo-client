@@ -50,7 +50,7 @@ export default function HomePage() {
 
   const refreshRef = useRef<(() => void) | null>(null)
 
-  const [selectedCafeteriaName, setSelectedCafeteriaName] = useState<string>('공식당')
+  const [selectedCafeteriaName, setSelectedCafeteriaName] = useState<string>('공식당 학생식당')
 
   const filterMenus = (menus: MenuResponse[]) =>
     menus.filter((m) => matchRestaurant(m.restaurant, selectedCafeteriaName))

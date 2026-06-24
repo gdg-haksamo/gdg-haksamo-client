@@ -1,5 +1,5 @@
 export type CafeteriaMenu = {
-  menuId: number
+  menuId?: number
   name: string
   price: number
   rating?: number

@@ -1,4 +1,5 @@
 import { ChevronDown, Search } from 'lucide-react'
+import ScrollContainer from 'react-indiana-drag-scroll'
 import type { ReviewSort } from '@/mocks/review'
 import { RESTAURANT_TABS, type RestaurantTab } from '@/components/review/reviewFilterUtils'
 
@@ -23,7 +24,7 @@ export default function ReviewFilters({
 }: ReviewFiltersProps) {
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap gap-2">
+      <ScrollContainer className="flex gap-2 scrollbar-hide">
         {RESTAURANT_TABS.map((tab) => {
           const isActive = activeTab === tab
           return (
@@ -31,7 +32,7 @@ export default function ReviewFilters({
               key={tab}
               type="button"
               onClick={() => onTabChange(tab)}
-              className={`rounded-[20px] px-3 py-2 text-[11px] font-semibold ${
+              className={`shrink-0 whitespace-nowrap rounded-[20px] px-3 py-2 text-[11px] font-semibold ${
                 isActive ? 'bg-[#E31E2D] text-white' : 'bg-[#F0F0F0] text-[#606060]'
               }`}
             >
@@ -39,7 +40,7 @@ export default function ReviewFilters({
             </button>
           )
         })}
-      </div>
+      </ScrollContainer>
 
       <div className="flex items-center gap-2">
         <div className="flex flex-1 items-center gap-2 rounded-[12px] bg-[#F0F0F0] px-4 py-2">

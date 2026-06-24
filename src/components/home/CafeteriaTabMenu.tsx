@@ -1,7 +1,14 @@
 import { useState } from 'react'
 import ScrollContainer from 'react-indiana-drag-scroll'
 
-const CAFETERIA_TABS = ['공식당', '복지관', '정보센터', '카페테리아 첨성'] as const
+const CAFETERIA_TABS = [
+  '공식당 학생식당',
+  '공식당 교직원식당',
+  '복지관',
+  '정보센터',
+  '카페테리아 첨성',
+  '글로벌플라자',
+] as const
 
 type CafeteriaTab = (typeof CAFETERIA_TABS)[number]
 
@@ -10,7 +17,7 @@ type CafeteriaTabMenuProps = {
 }
 
 export default function CafeteriaTabMenu({ onChange }: CafeteriaTabMenuProps) {
-  const [activeTab, setActiveTab] = useState<CafeteriaTab>('공식당')
+  const [activeTab, setActiveTab] = useState<CafeteriaTab>('공식당 학생식당')
 
   const handleTabClick = (tab: CafeteriaTab) => {
     setActiveTab(tab)

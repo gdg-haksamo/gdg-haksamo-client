@@ -1,5 +1,6 @@
 import { Route, Routes } from 'react-router-dom'
 import DefaultLayout from '@/components/layouts/DefaultLayout'
+import PrivateRoute from '@/components/PrivateRoute'
 import HomePage from '@/pages/HomePage'
 import InfoPage from '@/pages/InfoPage'
 import ReviewPage from '@/pages/ReviewPage'
@@ -18,10 +19,31 @@ function App() {
       <Route path="/admin" element={<AdminPage />} />
       <Route element={<DefaultLayout />}>
         <Route path="/" element={<HomePage />} />
-        <Route path="/search" element={<SearchPage />} />
+        <Route
+          path="/search"
+          element={
+            <PrivateRoute>
+              <SearchPage />
+            </PrivateRoute>
+          }
+        />
         <Route path="/info/:menuId" element={<InfoPage />} />
-        <Route path="/review" element={<ReviewPage />} />
-        <Route path="/my" element={<MyPage />} />
+        <Route
+          path="/review"
+          element={
+            <PrivateRoute>
+              <ReviewPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/my"
+          element={
+            <PrivateRoute>
+              <MyPage />
+            </PrivateRoute>
+          }
+        />
         <Route path="/notice" element={<NoticePage />} />
       </Route>
     </Routes>
