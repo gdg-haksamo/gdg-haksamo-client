@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
 import ReviewCard from '@/components/review/ReviewCard'
 import ReviewFilters from '@/components/review/ReviewFilters'
 import ReviewWriteFab from '@/components/review/ReviewWriteFab'
@@ -11,7 +12,9 @@ import {
 } from '@/components/review/reviewFilterUtils'
 import { type ReviewSort } from '@/mocks/review'
 import { type ReviewResponse, createReview, getMenuReviews } from '@/apis/review'
+import { getMyPage } from '@/apis/modules/me'
 import { httpGet } from '@/apis/http'
+import { useAuthStore } from '@/store/authStore'
 
 function sortReviews(items: ReviewResponse[], sort: ReviewSort) {
   switch (sort) {
@@ -42,6 +45,20 @@ export default function ReviewPage() {
   )
   const [query, setQuery] = useState(initialMenuName)
   const [sort, setSort] = useState<ReviewSort>('최신순')
+  const [knownUserId, setKnownUserId] = useState<number | undefined>()
+
+  const storedUserId = useAuthStore((s) => s.userId)
+  const setAuth = useAuthStore((s) => s.setAuth)
+  const nickname = useAuthStore((s) => s.nickname)
+  const role = useAuthStore((s) => s.role)
+  const managedRestaurantId = useAuthStore((s) => s.managedRestaurantId)
+
+  const { data: myProfile } = useQuery({
+    queryKey: ['me'],
+    queryFn: getMyPage,
+  })
+
+  const currentUserId = myProfile?.userId ?? storedUserId ?? knownUserId
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -69,11 +86,19 @@ export default function ReviewPage() {
         rating: data.rating,
         content: data.content.trim(),
       })
+      setKnownUserId((prev) => prev ?? newReview.userId)
+      if (nickname) {
+        setAuth(nickname, role ?? undefined, managedRestaurantId, newReview.userId)
+      }
       setReviews((prev) => [newReview, ...prev])
       setIsWriteModalOpen(false)
     } catch (err) {
       console.error('리뷰 작성 실패:', err)
     }
+  }
+
+  const handleDeleteReview = (reviewId: number) => {
+    setReviews((prev) => prev.filter((r) => r.reviewId !== reviewId))
   }
 
   const filtered = useMemo(() => {
@@ -118,7 +143,12 @@ export default function ReviewPage() {
 
         <div className="flex flex-col gap-3">
           {filtered.map((review) => (
-            <ReviewCard key={review.reviewId} review={review} />
+            <ReviewCard
+              key={review.reviewId}
+              review={review}
+              currentUserId={currentUserId}
+              onDelete={handleDeleteReview}
+            />
           ))}
         </div>
       </div>

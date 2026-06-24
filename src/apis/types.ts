@@ -137,6 +137,7 @@ export interface NotificationSettingsResponse {
 }
 
 export interface MyPageResponse {
+  userId?: number
   nickname: string
   department: string
   role?: UserRole

@@ -1,11 +1,13 @@
 import { useState } from 'react'
-import { Heart, User } from 'lucide-react'
+import { Heart, Trash2, User } from 'lucide-react'
 import type { ReviewResponse } from '@/apis/review'
-import { toggleHelpful } from '@/apis/review'
+import { deleteReview, toggleHelpful } from '@/apis/review'
 import StarRating from '../info/StarRating'
 
 type ReviewCardProps = {
   review: ReviewResponse
+  currentUserId?: number
+  onDelete?: (reviewId: number) => void
 }
 
 function formatReviewDate(isoDate: string) {
@@ -13,9 +15,12 @@ function formatReviewDate(isoDate: string) {
   return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`
 }
 
-export default function ReviewCard({ review }: ReviewCardProps) {
+export default function ReviewCard({ review, currentUserId, onDelete }: ReviewCardProps) {
   const [isLiked, setIsLiked] = useState(false)
   const [helpfulCount, setHelpfulCount] = useState(review.helpfulCount)
+  const [isDeleting, setIsDeleting] = useState(false)
+
+  const isOwner = currentUserId != null && review.userId === currentUserId
 
   const handleLikeClick = async () => {
     try {
@@ -24,6 +29,20 @@ export default function ReviewCard({ review }: ReviewCardProps) {
       setHelpfulCount((count) => count + (isLiked ? -1 : 1))
     } catch (err) {
       console.error('도움됐어요 실패:', err)
+    }
+  }
+
+  const handleDeleteClick = async () => {
+    if (!window.confirm('작성한 리뷰를 삭제할까요?')) return
+
+    setIsDeleting(true)
+    try {
+      await deleteReview(review.reviewId)
+      onDelete?.(review.reviewId)
+    } catch (err) {
+      console.error('리뷰 삭제 실패:', err)
+    } finally {
+      setIsDeleting(false)
     }
   }
 
@@ -53,14 +72,30 @@ export default function ReviewCard({ review }: ReviewCardProps) {
 
       {review.content && <p className="text-[12px] text-black">{review.content}</p>}
 
-      <button
-        type="button"
-        onClick={handleLikeClick}
-        className="flex items-center justify-end gap-2 self-end text-[#606060]"
-      >
-        <Heart size={16} className={isLiked ? 'fill-[#E31E2D] text-[#E31E2D]' : 'text-[#E31E2D]'} />
-        <span className="text-[12px] font-semibold">{helpfulCount}</span>
-      </button>
+      <div className="flex items-center justify-end gap-4 self-end">
+        {isOwner && (
+          <button
+            type="button"
+            onClick={handleDeleteClick}
+            disabled={isDeleting}
+            aria-label="리뷰 삭제"
+            className="cursor-pointer text-[#A0A0A0] disabled:opacity-50"
+          >
+            <Trash2 size={16} />
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={handleLikeClick}
+          className="flex items-center gap-2 text-[#606060]"
+        >
+          <Heart
+            size={16}
+            className={isLiked ? 'fill-[#E31E2D] text-[#E31E2D]' : 'text-[#E31E2D]'}
+          />
+          <span className="text-[12px] font-semibold">{helpfulCount}</span>
+        </button>
+      </div>
     </div>
   )
 }
