@@ -37,6 +37,10 @@ export const ENDPOINTS = {
   USERS: {
     FCM_TOKEN: '/api/users/me/fcm-token',
   },
+  RECOMMENDATIONS: {
+    TODAY: '/api/recommendations/today',
+    REFRESH: '/api/recommendations/today/refresh',
+  },
   ADMIN: {
     USERS: '/api/admin/users',
     USER: (userId: number) => `/api/admin/users/${userId}`,

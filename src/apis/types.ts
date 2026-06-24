@@ -285,6 +285,23 @@ export interface ResetPasswordRequest {
   newPassword: string
 }
 
+// ── Recommendation ────────────────────────────────────────────────────────────
+
+export interface TodayRecommendationResponse {
+  menuId: number
+  menuName: string
+  restaurant: string
+  price: number
+  category: string | null
+  imageUrl: string | null
+  description: string | null
+  nutrition: NutritionInfo
+  date: string
+  meal: MealTime
+  refreshCount: number
+  refreshRemaining: number
+}
+
 // ── User ──────────────────────────────────────────────────────────────────────
 
 export interface FcmTokenRequest {
