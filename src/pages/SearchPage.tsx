@@ -8,10 +8,12 @@ import { getRestaurants, getRestaurantMenus } from '@/apis/modules/restaurants'
 import cafeteriaMarker from '@/assets/cafeteria-marker.svg'
 
 const BASE_CAFETERIAS = [
-  { name: '공식당', building: '공대1호관 1층', position: { x: 45.6, y: 62.1 } },
+  { name: '공식당 교직원식당', building: '공대1호관 1층', position: { x: 45.5, y: 61.8 } },
+  { name: '공식당 학생식당', building: '공대1호관 1층', position: { x: 47.2, y: 62.1 } },
   { name: '복지관', building: '학생복지관 1층', position: { x: 74.0, y: 53.0 } },
   { name: '정보센터', building: '종합정보센터 1층', position: { x: 70.1, y: 30.6 } },
   { name: '카페테리아 첨성', building: '첨성관 1층', position: { x: 76.9, y: 53.5 } },
+  { name: '글로벌플라자', building: '글로벌플라자 1층', position: { x: 52.0, y: 35.0 } },
 ] as const
 
 export default function SearchPage() {
