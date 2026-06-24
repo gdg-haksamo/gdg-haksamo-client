@@ -6,7 +6,8 @@ type AuthState = {
   isLoggedIn: boolean
   nickname: string | null
   role: UserRole | null
-  setAuth: (nickname: string, role?: UserRole) => void
+  managedRestaurantId: number | null
+  setAuth: (nickname: string, role?: UserRole, managedRestaurantId?: number | null) => void
   clearAuth: () => void
 }
 
@@ -16,8 +17,16 @@ export const useAuthStore = create<AuthState>()(
       isLoggedIn: false,
       nickname: null,
       role: null,
-      setAuth: (nickname, role) => set({ isLoggedIn: true, nickname, role: role ?? null }),
-      clearAuth: () => set({ isLoggedIn: false, nickname: null, role: null }),
+      managedRestaurantId: null,
+      setAuth: (nickname, role, managedRestaurantId) =>
+        set({
+          isLoggedIn: true,
+          nickname,
+          role: role ?? null,
+          managedRestaurantId: managedRestaurantId ?? null,
+        }),
+      clearAuth: () =>
+        set({ isLoggedIn: false, nickname: null, role: null, managedRestaurantId: null }),
     }),
     { name: 'auth-storage' },
   ),
