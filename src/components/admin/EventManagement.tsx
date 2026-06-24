@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Pencil, Trash2, Plus, X } from 'lucide-react'
-import { createEvent, deleteEvent, updateEvent } from '@/apis/admin'
-import { getEvents } from '@/apis/events'
+import { createEvent, deleteEvent, updateEvent } from '@/apis/modules/admin'
+import { getEvents } from '@/apis/modules/events'
 import type { EventResponse } from '@/apis/types'
 
 type EventFormData = {

@@ -1,5 +1,5 @@
-import { httpGet, httpPatch } from './http'
-import { ENDPOINTS } from './endpoints'
+import { httpGet, httpPatch } from '../http'
+import { ENDPOINTS } from '../endpoints'
 import type {
   MyPageResponse,
   FavoriteRestaurantsUpdateRequest,
@@ -7,7 +7,7 @@ import type {
   PreferencesUpdateRequest,
   NotificationSettingsUpdateRequest,
   NotificationSettingsResponse,
-} from './types'
+} from '../types'
 
 export const getMyPage = () => httpGet<MyPageResponse>(ENDPOINTS.ME.PROFILE)
 

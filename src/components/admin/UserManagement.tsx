@@ -7,8 +7,8 @@ import {
   getAdminUsers,
   resetUserPassword,
   updateUserRole,
-} from '@/apis/admin'
-import { getRestaurants } from '@/apis/restaurants'
+} from '@/apis/modules/admin'
+import { getRestaurants } from '@/apis/modules/restaurants'
 import type { AdminUserResponse, UserRole } from '@/apis/types'
 
 const ROLE_LABEL: Record<UserRole, string> = {

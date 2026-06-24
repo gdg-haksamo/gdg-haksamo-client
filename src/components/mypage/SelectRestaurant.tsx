@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { PencilLine } from 'lucide-react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getRestaurants } from '@/apis/restaurants'
-import { getMyPage, updateFavoriteRestaurants } from '@/apis/me'
+import { getRestaurants } from '@/apis/modules/restaurants'
+import { getMyPage, updateFavoriteRestaurants } from '@/apis/modules/me'
 
 export function SelectRestaurant() {
   const queryClient = useQueryClient()

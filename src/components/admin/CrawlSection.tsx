@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { RefreshCw, CheckCircle } from 'lucide-react'
-import { triggerCrawl } from '@/apis/admin'
+import { triggerCrawl } from '@/apis/modules/admin'
 
 export default function CrawlSection() {
   const { mutate, isPending, isSuccess, error, reset } = useMutation({

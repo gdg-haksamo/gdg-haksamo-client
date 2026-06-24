@@ -1,5 +1,5 @@
-import { httpPost } from './http'
-import { ENDPOINTS } from './endpoints'
+import { httpPost } from '../http'
+import { ENDPOINTS } from '../endpoints'
 import type {
   SendCodeRequest,
   VerifyCodeRequest,
@@ -7,7 +7,7 @@ import type {
   SignUpResponse,
   LoginRequest,
   TokenResponse,
-} from './types'
+} from '../types'
 
 export const sendCode = (email: string) =>
   httpPost(ENDPOINTS.AUTH.SEND_CODE, { email } satisfies SendCodeRequest)

@@ -4,7 +4,7 @@ import { useQueries, useQuery } from '@tanstack/react-query'
 import CampusMap from '@/components/search/CampusMap'
 import CafeteriaBottomSheet from '@/components/search/CafeteriaBottomSheet'
 import type { CafeteriaInfo } from '@/components/search/types'
-import { getRestaurants, getRestaurantMenus } from '@/apis/restaurants'
+import { getRestaurants, getRestaurantMenus } from '@/apis/modules/restaurants'
 import cafeteriaMarker from '@/assets/cafeteria-marker.svg'
 
 const BASE_CAFETERIAS = [

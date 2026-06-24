@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { PencilLine } from 'lucide-react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getPreferenceKeywords } from '@/apis/preferences'
-import { getMyPage, updatePreferences } from '@/apis/me'
+import { getPreferenceKeywords } from '@/apis/modules/preferences'
+import { getMyPage, updatePreferences } from '@/apis/modules/me'
 import type { KeywordCode } from '@/apis/types'
 
 export function SelectKeyword() {

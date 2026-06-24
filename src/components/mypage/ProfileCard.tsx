@@ -1,6 +1,6 @@
 import { User, Settings } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
-import { getMyPage } from '@/apis/me'
+import { getMyPage } from '@/apis/modules/me'
 
 export function ProfileCard() {
   const { data } = useQuery({ queryKey: ['me'], queryFn: getMyPage })
