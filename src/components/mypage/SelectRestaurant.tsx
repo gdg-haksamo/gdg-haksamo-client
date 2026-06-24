@@ -10,7 +10,10 @@ export function SelectRestaurant() {
   const [draft, setDraft] = useState<number | null>(null)
 
   const { data: restaurants } = useQuery({ queryKey: ['restaurants'], queryFn: getRestaurants })
-  const { data: myData } = useQuery({ queryKey: ['me'], queryFn: getMyPage })
+  const { data: myData, isPending: isMyDataPending } = useQuery({
+    queryKey: ['me'],
+    queryFn: getMyPage,
+  })
 
   const serverId = myData?.favoriteRestaurants?.[0]?.restaurantId ?? null
   const selectedId = isEditing ? draft : serverId
@@ -47,7 +50,7 @@ export function SelectRestaurant() {
               if (isEditing) save()
               else startEdit()
             }}
-            disabled={isPending}
+            disabled={isPending || isMyDataPending}
             className="cursor-pointer flex items-center gap-1 disabled:opacity-50"
           >
             <PencilLine size={12} className="text-[#E31E2D]" />
