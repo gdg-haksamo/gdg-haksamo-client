@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { animate, motion, useMotionValue, useTransform } from 'framer-motion'
 import { RefreshCw } from 'lucide-react'
 import { useQueries, useQuery } from '@tanstack/react-query'
@@ -7,35 +7,31 @@ import MealCard from '@/components/home/MealCard'
 import RecommendedMenuCard from '@/components/home/RecommendedMenuCard'
 import type { MealMenuItemType } from '@/components/home/MealMenuItem'
 import { getAccessToken } from '@/apis/http'
-import { getMenus } from '@/apis/modules/menus'
 import { getRestaurants, getRestaurantMenus } from '@/apis/modules/restaurants'
+import { getMenus } from '@/apis/modules/menus'
 import type { MenuResponse, RestaurantMenuResponse } from '@/apis/types'
-import { MOCK_RECOMMENDED_MENUS, type RecommendedMenuType } from '@/mocks/home'
 
 const PULL_THRESHOLD = 70
 const MAX_PULL = 90
 
 function getCurrentMealType(): string | null {
   const hour = new Date().getHours()
-  if (hour < 9) return '아침'
-  if (hour < 14) return '중식'
-  if (hour < 19) return '저녁'
+  if (hour < 10) return '아침'
+  if (hour < 15) return '중식'
+  if (hour < 21) return '저녁'
   return null
 }
 
 function toDateString(date: Date): string {
-  return date.toISOString().split('T')[0]
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
 }
 
 const matchRestaurant = (menuRestaurant: string, tabName: string) => {
   const a = menuRestaurant.trim()
   const b = tabName.trim()
-  return a === b || a.includes(b) || b.includes(a)
-}
-
-const matchMenuName = (menuName: string, searchName: string) => {
-  const a = menuName.trim()
-  const b = searchName.trim()
   return a === b || a.includes(b) || b.includes(a)
 }
 
@@ -48,24 +44,6 @@ function findMenuId(catalogMenus: RestaurantMenuResponse[], menuName: string): n
     .sort((a, b) => b.name.length - a.name.length)
 
   return partialMatches[0]?.menuId
-}
-
-function resolveRecommendedMenuId(
-  menu: RecommendedMenuType,
-  todayMenus: MenuResponse[],
-  allCatalogs: RestaurantMenuResponse[][],
-): number | undefined {
-  const todayMatch = todayMenus.find(
-    (m) => matchRestaurant(m.restaurant, menu.location) && matchMenuName(m.menuName, menu.name),
-  )
-  const menuNameToLookup = todayMatch?.menuName ?? menu.name
-
-  for (const catalog of allCatalogs) {
-    const id = findMenuId(catalog, menuNameToLookup)
-    if (id) return id
-  }
-
-  return undefined
 }
 
 function resolveMealMenuId(
@@ -112,8 +90,8 @@ export default function HomePage() {
     })),
   })
 
-  const [menuIndex, setMenuIndex] = useState(0)
-  const [isRefreshing, setIsRefreshing] = useState(false)
+  const refreshRef = useRef<(() => void) | null>(null)
+
   const [selectedCafeteriaName, setSelectedCafeteriaName] = useState<string>('공식당 학생식당')
 
   const filterMenus = (menus: MenuResponse[]) =>
@@ -132,35 +110,11 @@ export default function HomePage() {
   const lunch = mapToMenuItems(filterMenus(data?.lunch.menus ?? []))
   const dinner = mapToMenuItems(filterMenus(data?.dinner.menus ?? []))
 
-  const todayMenus = useMemo<MenuResponse[]>(
-    () => [
-      ...(data?.breakfast.menus ?? []),
-      ...(data?.lunch.menus ?? []),
-      ...(data?.dinner.menus ?? []),
-    ],
-    [data],
-  )
-
-  const allCatalogs = useMemo(
-    () => menuQueries.map((q) => q.data ?? []).filter((catalog) => catalog.length > 0),
-    [menuQueries],
-  )
-
-  const recommendedMenu = MOCK_RECOMMENDED_MENUS[menuIndex]
-  const recommendedMenuId = recommendedMenu
-    ? resolveRecommendedMenuId(recommendedMenu, todayMenus, allCatalogs)
-    : undefined
-
   const containerRef = useRef<HTMLDivElement>(null)
-  const isRefreshingRef = useRef(false)
 
   const pullHeight = useMotionValue(0)
   const indicatorOpacity = useTransform(pullHeight, [0, PULL_THRESHOLD], [0, 1])
   const iconRotation = useTransform(pullHeight, [0, PULL_THRESHOLD], [0, 180])
-
-  useEffect(() => {
-    isRefreshingRef.current = isRefreshing
-  }, [isRefreshing])
 
   useEffect(() => {
     const main = containerRef.current?.parentElement
@@ -172,11 +126,11 @@ export default function HomePage() {
     const triggerOrCancel = () => {
       const h = pullHeight.get()
       animate(pullHeight, 0, { type: 'spring', stiffness: 300, damping: 28 })
-      if (h >= PULL_THRESHOLD) setIsRefreshing(true)
+      if (h >= PULL_THRESHOLD) refreshRef.current?.()
     }
 
     const onTouchStart = (e: TouchEvent) => {
-      if (main.scrollTop > 0 || isRefreshingRef.current) return
+      if (main.scrollTop > 0) return
       startY = e.touches[0].clientY
       pulling = true
     }
@@ -197,7 +151,7 @@ export default function HomePage() {
     }
 
     const onMouseDown = (e: MouseEvent) => {
-      if (main.scrollTop > 0 || isRefreshingRef.current || e.button !== 0) return
+      if (main.scrollTop > 0 || e.button !== 0) return
       e.preventDefault()
       startY = e.clientY
       pulling = true
@@ -248,15 +202,6 @@ export default function HomePage() {
     }
   }, [pullHeight])
 
-  useEffect(() => {
-    if (!isRefreshing) return
-    const timer = setTimeout(() => {
-      setMenuIndex((prev) => (prev + 1) % MOCK_RECOMMENDED_MENUS.length)
-      setIsRefreshing(false)
-    }, 3000)
-    return () => clearTimeout(timer)
-  }, [isRefreshing])
-
   return (
     <div ref={containerRef} className="flex flex-col px-5 py-4">
       <motion.div
@@ -269,11 +214,7 @@ export default function HomePage() {
       </motion.div>
 
       <div className="flex flex-col gap-4">
-        <RecommendedMenuCard
-          menuIndex={menuIndex}
-          isRefreshing={isRefreshing}
-          menuId={recommendedMenuId}
-        />
+        <RecommendedMenuCard refreshRef={refreshRef} />
         <CafeteriaTabMenu onChange={setSelectedCafeteriaName} />
         <div className="flex flex-col gap-3">
           <MealCard mealType="아침" items={breakfast} defaultOpen={currentMeal === '아침'} />

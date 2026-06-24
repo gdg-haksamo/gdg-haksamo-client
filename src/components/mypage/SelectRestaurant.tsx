@@ -7,21 +7,24 @@ import { getMyPage, updateFavoriteRestaurants } from '@/apis/modules/me'
 export function SelectRestaurant() {
   const queryClient = useQueryClient()
   const [isEditing, setIsEditing] = useState(false)
-  const [draft, setDraft] = useState<number[]>([])
+  const [draft, setDraft] = useState<number | null>(null)
 
   const { data: restaurants } = useQuery({ queryKey: ['restaurants'], queryFn: getRestaurants })
-  const { data: myData } = useQuery({ queryKey: ['me'], queryFn: getMyPage })
+  const { data: myData, isPending: isMyDataPending } = useQuery({
+    queryKey: ['me'],
+    queryFn: getMyPage,
+  })
 
-  const serverIds = myData?.favoriteRestaurants?.map((r) => r.restaurantId) ?? []
-  const selectedIds = isEditing ? draft : serverIds
+  const serverId = myData?.favoriteRestaurants?.[0]?.restaurantId ?? null
+  const selectedId = isEditing ? draft : serverId
 
   const startEdit = () => {
-    setDraft(serverIds)
+    setDraft(serverId)
     setIsEditing(true)
   }
 
   const { mutate: save, isPending } = useMutation({
-    mutationFn: () => updateFavoriteRestaurants(draft),
+    mutationFn: () => updateFavoriteRestaurants(draft != null ? [draft] : []),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['me'] })
       setIsEditing(false)
@@ -29,12 +32,12 @@ export function SelectRestaurant() {
   })
 
   const toggle = (id: number) => {
-    setDraft((prev) => (prev.includes(id) ? prev.filter((r) => r !== id) : [...prev, id]))
+    setDraft((prev) => (prev === id ? null : id))
   }
 
   const visibleRestaurants = isEditing
     ? (restaurants ?? [])
-    : (restaurants ?? []).filter((r) => selectedIds.includes(r.restaurantId))
+    : (restaurants ?? []).filter((r) => r.restaurantId === selectedId)
 
   return (
     <div className="bg-white rounded-[12px] p-5 border border-[#E0E0E0]">
@@ -47,7 +50,7 @@ export function SelectRestaurant() {
               if (isEditing) save()
               else startEdit()
             }}
-            disabled={isPending}
+            disabled={isPending || isMyDataPending}
             className="cursor-pointer flex items-center gap-1 disabled:opacity-50"
           >
             <PencilLine size={12} className="text-[#E31E2D]" />
@@ -59,7 +62,7 @@ export function SelectRestaurant() {
 
         <div className="flex flex-wrap items-center gap-2">
           {visibleRestaurants.map((r) => {
-            const isSelected = selectedIds.includes(r.restaurantId)
+            const isSelected = r.restaurantId === selectedId
             const activeStyle =
               isEditing && isSelected ? 'bg-[#E31E2D] text-white' : 'bg-[#F0F0F0] text-[#606060]'
 
