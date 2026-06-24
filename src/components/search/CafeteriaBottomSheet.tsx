@@ -17,14 +17,14 @@ export default function CafeteriaBottomSheet({ cafeteria, onClose }: Props) {
       {cafeteria && (
         <>
           <motion.div
-            className="absolute inset-0 z-10 bg-black/30"
+            className="fixed inset-0 z-30 bg-black/30"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
           />
           <motion.div
-            className="absolute bottom-0 left-0 right-0 z-20 rounded-t-[20px] bg-white px-5 pb-8 pt-4"
+            className="fixed bottom-0 left-0 right-0 z-40 mx-auto max-w-150 rounded-t-[20px] bg-white px-5 pb-8 pt-4"
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
@@ -47,7 +47,7 @@ export default function CafeteriaBottomSheet({ cafeteria, onClose }: Props) {
               </button>
             </div>
 
-            <div className="overflow-hidden rounded-[12px] border border-[#f0f0f0]">
+            <div className="overflow-hidden rounded-xl border border-[#f0f0f0]">
               {cafeteria.menus.map((menu) => (
                 <button
                   key={menu.menuId}
