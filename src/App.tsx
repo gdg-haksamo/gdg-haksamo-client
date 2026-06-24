@@ -6,14 +6,18 @@ import ReviewPage from '@/pages/ReviewPage'
 import MyPage from '@/pages/MyPage'
 import NoticePage from '@/pages/NoticePage'
 import SearchPage from '@/pages/SearchPage'
+import LoginPage from '@/pages/LoginPage'
+import SignupPage from '@/pages/SignupPage'
 
 function App() {
   return (
     <Routes>
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/signup" element={<SignupPage />} />
       <Route element={<DefaultLayout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/search" element={<SearchPage />} />
-        <Route path="/info" element={<InfoPage />} />
+        <Route path="/info/:menuId" element={<InfoPage />} />
         <Route path="/review" element={<ReviewPage />} />
         <Route path="/my" element={<MyPage />} />
         <Route path="/notice" element={<NoticePage />} />

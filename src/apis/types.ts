@@ -21,7 +21,6 @@ export interface SignUpRequest {
   password: string
   nickname: string
   department?: string
-  grade?: number
 }
 
 export interface SignUpResponse {
@@ -43,7 +42,7 @@ export interface TokenResponse {
 // ── Menu ──────────────────────────────────────────────────────────────────────
 
 export interface MenuResponse {
-  menuId: number
+  menuId?: number
   restaurant: string
   menuName: string
   price: number
@@ -68,11 +67,12 @@ export interface NutritionInfo {
   fat: number | null
 }
 
-export interface RecentReview {
+export interface PopularReviewResponse {
   userId: number
   createdAt: string
   rating: number
   content: string | null
+  helpfulCount: number
 }
 
 export interface MenuDetailResponse {
@@ -85,7 +85,7 @@ export interface MenuDetailResponse {
   nutrition: NutritionInfo
   averageRating: number | null
   reviewCount: number
-  recentReviews: RecentReview[]
+  popularReviews: PopularReviewResponse[]
 }
 
 // ── Review ────────────────────────────────────────────────────────────────────
@@ -135,7 +135,6 @@ export interface NotificationSettingsResponse {
 export interface MyPageResponse {
   nickname: string
   department: string
-  grade: number
   reviewCount: number
   helpfulReceivedCount: number
   activeEventCount: number | null
@@ -148,8 +147,28 @@ export interface FavoriteRestaurantsUpdateRequest {
   restaurantIds: number[]
 }
 
+export type KeywordCode =
+  | 'SPICY'
+  | 'MILD'
+  | 'SWEET'
+  | 'SOUR'
+  | 'NOODLE'
+  | 'RICE'
+  | 'MEAT'
+  | 'SEAFOOD'
+  | 'VEGETARIAN'
+  | 'SOUP'
+  | 'SALAD'
+  | 'SANDWICH'
+  | 'KOREAN'
+  | 'CHINESE'
+  | 'JAPANESE'
+  | 'WESTERN'
+  | 'LOW_CALORIE'
+  | 'HIGH_PROTEIN'
+
 export interface PreferencesUpdateRequest {
-  keywords: string[]
+  keywords: KeywordCode[]
 }
 
 export interface NotificationSettingsUpdateRequest {
@@ -161,7 +180,7 @@ export interface NotificationSettingsUpdateRequest {
 }
 
 export interface PreferenceKeywordResponse {
-  name: string
+  name: KeywordCode
   category: string
   label: string
 }
