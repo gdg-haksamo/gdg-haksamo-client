@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 
 type AuthState = {
   isLoggedIn: boolean
@@ -7,9 +8,14 @@ type AuthState = {
   clearAuth: () => void
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
-  isLoggedIn: false,
-  nickname: null,
-  setAuth: (nickname) => set({ isLoggedIn: true, nickname }),
-  clearAuth: () => set({ isLoggedIn: false, nickname: null }),
-}))
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set) => ({
+      isLoggedIn: false,
+      nickname: null,
+      setAuth: (nickname) => set({ isLoggedIn: true, nickname }),
+      clearAuth: () => set({ isLoggedIn: false, nickname: null }),
+    }),
+    { name: 'auth-storage' },
+  ),
+)
