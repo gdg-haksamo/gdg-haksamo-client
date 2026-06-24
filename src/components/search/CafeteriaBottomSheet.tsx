@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { X, MapPin } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
@@ -11,6 +12,14 @@ type Props = {
 
 export default function CafeteriaBottomSheet({ cafeteria, onClose }: Props) {
   const navigate = useNavigate()
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [onClose])
 
   return (
     <AnimatePresence>
