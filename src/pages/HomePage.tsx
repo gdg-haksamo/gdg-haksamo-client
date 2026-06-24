@@ -1,17 +1,27 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useMemo } from 'react'
 import { animate, motion, useMotionValue, useTransform } from 'framer-motion'
 import { RefreshCw } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import CafeteriaTabMenu from '@/components/home/CafeteriaTabMenu'
 import MealCard from '@/components/home/MealCard'
 import RecommendedMenuCard from '@/components/home/RecommendedMenuCard'
+import CafeteriaBottomSheet from '@/components/search/CafeteriaBottomSheet'
 import type { MealMenuItemType } from '@/components/home/MealMenuItem'
+import type { CafeteriaInfo } from '@/components/search/types'
 import { getMenus } from '@/apis/menus'
+import { getRestaurants, getRestaurantMenus } from '@/apis/restaurants'
 import type { MenuResponse } from '@/apis/types'
 import { MOCK_RECOMMENDED_MENUS } from '@/mocks/home'
 
 const PULL_THRESHOLD = 70
 const MAX_PULL = 90
+
+const CAFETERIA_META: Record<string, string> = {
+  공식당: '공대1호관 1층',
+  복지관: '학생복지관 1층',
+  정보센터: '종합정보센터 1층',
+  '카페테리아 첨성': '첨성관 1층',
+}
 
 function getCurrentMealType() {
   const hour = new Date().getHours()
@@ -39,12 +49,52 @@ export default function HomePage() {
     queryFn: () => getMenus(today),
   })
 
+  const { data: restaurants } = useQuery({
+    queryKey: ['restaurants'],
+    queryFn: getRestaurants,
+  })
+
   const breakfast = data?.breakfast.menus.map(toMenuItem) ?? []
   const lunch = data?.lunch.menus.map(toMenuItem) ?? []
   const dinner = data?.dinner.menus.map(toMenuItem) ?? []
 
   const [menuIndex, setMenuIndex] = useState(0)
   const [isRefreshing, setIsRefreshing] = useState(false)
+
+  // 바텀시트용 선택된 식당
+  const [selectedCafeteriaName, setSelectedCafeteriaName] = useState<string | null>(null)
+
+  const matchName = (a: string, b: string) =>
+    a.trim() === b.trim() || a.includes(b.trim()) || b.includes(a.trim())
+
+  const selectedRestaurant = useMemo(
+    () =>
+      selectedCafeteriaName
+        ? restaurants?.find((r) => matchName(r.name, selectedCafeteriaName))
+        : undefined,
+    [selectedCafeteriaName, restaurants],
+  )
+
+  const { data: selectedMenus } = useQuery({
+    queryKey: ['restaurant-menus', selectedRestaurant?.restaurantId],
+    queryFn: () => getRestaurantMenus(selectedRestaurant!.restaurantId),
+    enabled: !!selectedRestaurant,
+  })
+
+  const selectedCafeteria = useMemo<CafeteriaInfo | null>(() => {
+    if (!selectedCafeteriaName) return null
+    return {
+      id: String(selectedRestaurant?.restaurantId ?? selectedCafeteriaName),
+      name: selectedCafeteriaName,
+      building: CAFETERIA_META[selectedCafeteriaName] ?? '',
+      position: { x: 0, y: 0 },
+      menus: (selectedMenus ?? []).map((m) => ({
+        menuId: m.menuId,
+        name: m.name,
+        price: m.price,
+      })),
+    }
+  }, [selectedCafeteriaName, selectedRestaurant, selectedMenus])
 
   const containerRef = useRef<HTMLDivElement>(null)
   const isRefreshingRef = useRef(false)
@@ -93,7 +143,7 @@ export default function HomePage() {
 
     const onMouseDown = (e: MouseEvent) => {
       if (main.scrollTop > 0 || isRefreshingRef.current || e.button !== 0) return
-      e.preventDefault() // 텍스트 선택 및 native 드래그 차단
+      e.preventDefault()
       startY = e.clientY
       pulling = true
     }
@@ -130,7 +180,6 @@ export default function HomePage() {
     }
   }, [pullHeight])
 
-  // 최초 진입 시 pull 힌트 애니메이션 (0→55→0)
   useEffect(() => {
     const t1 = setTimeout(() => {
       animate(pullHeight, 55, { duration: 0.45, ease: [0.2, 0, 0.8, 1] })
@@ -166,13 +215,18 @@ export default function HomePage() {
 
       <div className="flex flex-col gap-4">
         <RecommendedMenuCard menuIndex={menuIndex} isRefreshing={isRefreshing} />
-        <CafeteriaTabMenu />
+        <CafeteriaTabMenu onChange={setSelectedCafeteriaName} />
         <div className="flex flex-col gap-3">
           <MealCard mealType="아침" items={breakfast} defaultOpen={currentMeal === '아침'} />
           <MealCard mealType="중식" items={lunch} defaultOpen={currentMeal === '중식'} />
           <MealCard mealType="저녁" items={dinner} defaultOpen={currentMeal === '저녁'} />
         </div>
       </div>
+
+      <CafeteriaBottomSheet
+        cafeteria={selectedCafeteria}
+        onClose={() => setSelectedCafeteriaName(null)}
+      />
     </div>
   )
 }
