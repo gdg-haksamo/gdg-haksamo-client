@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { Camera, ChevronDown, Star, X } from 'lucide-react'
-import { RESTAURANT_MENUS, REVIEW_RESTAURANTS, type Restaurant } from '@/mocks/review'
 
 export type ReviewWriteFormData = {
-  restaurant: Restaurant
+  restaurant: string
   menuName: string
+  menuId: number
   rating: number
   content: string
 }
@@ -17,26 +17,43 @@ type ReviewWriteModalProps = {
 const SELECT_CLASS =
   'h-[40px] w-full appearance-none rounded-[12px] bg-[#F0F0F0] pl-3 pr-10 text-[12px] outline-none'
 
+const MODAL_RESTAURANTS = ['정보센터', '복지관', '첨성'] as const
+
+const MODAL_MENUS: Record<string, string[]> = {
+  정보센터: ['제육볶음', '순두부찌개'],
+  복지관: ['돈까스', '비빔밥'],
+  첨성: ['김치찌개'],
+}
+
+const MENU_ID_MAP: Record<string, number> = {
+  제육볶음: 110,
+  순두부찌개: 111,
+  돈까스: 112,
+  비빔밥: 113,
+  김치찌개: 114,
+}
+
 export default function ReviewWriteModal({ onClose, onSubmit }: ReviewWriteModalProps) {
-  const [restaurant, setRestaurant] = useState<Restaurant | ''>('')
+  const [restaurant, setRestaurant] = useState('')
   const [menuName, setMenuName] = useState('')
   const [rating, setRating] = useState(0)
   const [content, setContent] = useState('')
 
-  const menuOptions = restaurant ? RESTAURANT_MENUS[restaurant] : []
+  const menuOptions = restaurant ? (MODAL_MENUS[restaurant] ?? []) : []
   const isValid = restaurant !== '' && menuName !== '' && rating > 0
 
-  const handleRestaurantChange = (value: Restaurant | '') => {
+  const handleRestaurantChange = (value: string) => {
     setRestaurant(value)
     setMenuName('')
   }
 
   const handleSubmit = () => {
-    if (!isValid || restaurant === null) return
+    if (!isValid) return
 
     onSubmit({
       restaurant,
       menuName,
+      menuId: MENU_ID_MAP[menuName] ?? 0,
       rating,
       content: content.trim(),
     })
@@ -64,11 +81,11 @@ export default function ReviewWriteModal({ onClose, onSubmit }: ReviewWriteModal
             <div className="relative">
               <select
                 value={restaurant}
-                onChange={(e) => handleRestaurantChange(e.target.value as Restaurant | '')}
+                onChange={(e) => handleRestaurantChange(e.target.value)}
                 className={`${SELECT_CLASS} ${restaurant ? 'text-black' : 'text-[#A0A0A0]'}`}
               >
                 <option value="">식당을 선택하세요</option>
-                {REVIEW_RESTAURANTS.map((name) => (
+                {MODAL_RESTAURANTS.map((name) => (
                   <option key={name} value={name}>
                     {name}
                   </option>
