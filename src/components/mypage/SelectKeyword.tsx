@@ -16,8 +16,12 @@ export function SelectKeyword() {
   })
   const { data: myData } = useQuery({ queryKey: ['me'], queryFn: getMyPage })
 
-  const serverKeywords = (myData?.preferenceKeywords as KeywordCode[]) ?? []
-  const selected = isEditing ? draft : serverKeywords
+  // API는 라벨 문자열로 내려줌 → 코드로 변환해서 사용
+  const serverLabels = myData?.preferenceKeywords ?? []
+  const serverCodes: KeywordCode[] =
+    keywords?.filter((kw) => serverLabels.includes(kw.label)).map((kw) => kw.name) ?? []
+
+  const selected = isEditing ? draft : serverCodes
 
   const groups =
     keywords?.reduce<Record<string, { name: KeywordCode; label: string }[]>>((acc, kw) => {
@@ -27,7 +31,7 @@ export function SelectKeyword() {
     }, {}) ?? {}
 
   const startEdit = () => {
-    setDraft(serverKeywords)
+    setDraft(serverCodes)
     setIsEditing(true)
   }
 
