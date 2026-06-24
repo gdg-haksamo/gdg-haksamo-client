@@ -43,9 +43,8 @@ export const ENDPOINTS = {
     USER_ROLE: (userId: number) => `/api/admin/users/${userId}/role`,
     USER_PASSWORD: (userId: number) => `/api/admin/users/${userId}/password`,
     RESTAURANT_ADMIN: '/api/admin/users/restaurant-admin',
-    CRAWL: '/api/admin/crawl',
-    MENUS: '/api/admin/menus',
-    MENU: (menuId: number) => `/api/admin/menus/${menuId}`,
-    MENU_SOLD_OUT: (menuId: number) => `/api/admin/menus/${menuId}/sold-out`,
+    CRAWL: '/api/admin/menus/crawl',
+    MENUS_MANAGE: '/api/menus/manage',
+    MENU_SOLD_OUT: (scheduleId: number) => `/api/menus/schedules/${scheduleId}/sold-out`,
   },
 } as const
