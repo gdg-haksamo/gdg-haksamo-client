@@ -1,11 +1,16 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import ReviewCard from '@/components/review/ReviewCard'
 import ReviewFilters from '@/components/review/ReviewFilters'
 import ReviewWriteFab from '@/components/review/ReviewWriteFab'
 import ReviewWriteModal, { type ReviewWriteFormData } from '@/components/review/ReviewWriteModal'
-import { tabToRestaurant, type RestaurantTab } from '@/components/review/reviewFilterUtils'
+import {
+  restaurantToTab,
+  tabToRestaurant,
+  type RestaurantTab,
+} from '@/components/review/reviewFilterUtils'
 import { type ReviewSort } from '@/mocks/review'
-import { type ReviewResponse, createReview } from '@/apis/review'
+import { type ReviewResponse, createReview, getMenuReviews } from '@/apis/review'
 import { httpGet } from '@/apis/http'
 
 function sortReviews(items: ReviewResponse[], sort: ReviewSort) {
@@ -24,27 +29,39 @@ function sortReviews(items: ReviewResponse[], sort: ReviewSort) {
 }
 
 export default function ReviewPage() {
+  const [searchParams] = useSearchParams()
+  const menuIdParam = searchParams.get('menuId')
+  const initialMenuName = searchParams.get('menuName') ?? ''
+  const initialRestaurant = searchParams.get('restaurant') ?? ''
+
   const [reviews, setReviews] = useState<ReviewResponse[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isWriteModalOpen, setIsWriteModalOpen] = useState(false)
-  const [activeTab, setActiveTab] = useState<RestaurantTab>('전체')
-  const [query, setQuery] = useState('')
+  const [activeTab, setActiveTab] = useState<RestaurantTab>(() =>
+    restaurantToTab(initialRestaurant),
+  )
+  const [query, setQuery] = useState(initialMenuName)
   const [sort, setSort] = useState<ReviewSort>('최신순')
 
   useEffect(() => {
-    const fetchAllReviews = async () => {
+    const fetchReviews = async () => {
       setIsLoading(true)
       try {
-        const allReviews = await httpGet<ReviewResponse[]>('/api/reviews')
-        setReviews(allReviews)
+        if (menuIdParam) {
+          const menuReviews = await getMenuReviews(Number(menuIdParam))
+          setReviews(menuReviews)
+        } else {
+          const allReviews = await httpGet<ReviewResponse[]>('/api/reviews')
+          setReviews(allReviews)
+        }
       } catch (err) {
         console.error('리뷰 조회 실패:', err)
       } finally {
         setIsLoading(false)
       }
     }
-    fetchAllReviews()
-  }, [])
+    fetchReviews()
+  }, [menuIdParam])
 
   const handleReviewSubmit = async (data: ReviewWriteFormData) => {
     try {
@@ -63,7 +80,11 @@ export default function ReviewPage() {
     const restaurant = tabToRestaurant(activeTab)
     const q = query.trim()
 
-    const byRestaurant = restaurant ? reviews.filter((r) => r.restaurant === restaurant) : reviews
+    const byRestaurant = menuIdParam
+      ? reviews
+      : restaurant
+        ? reviews.filter((r) => r.restaurant === restaurant)
+        : reviews
 
     const byQuery =
       q.length === 0
@@ -71,7 +92,7 @@ export default function ReviewPage() {
         : byRestaurant.filter((r) => r.menuName.includes(q) || r.restaurant.includes(q))
 
     return sortReviews(byQuery, sort)
-  }, [activeTab, query, sort, reviews])
+  }, [activeTab, query, sort, reviews, menuIdParam])
 
   return (
     <>

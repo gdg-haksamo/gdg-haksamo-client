@@ -49,7 +49,12 @@ export default function InfoPage() {
         protein={data.nutrition.protein ?? 0}
         fat={data.nutrition.fat ?? 0}
       />
-      <CurrentReview reviews={data.popularReviews.map(toReviewItem)} />
+      <CurrentReview
+        reviews={data.popularReviews.map(toReviewItem)}
+        menuId={Number(menuId)}
+        menuName={data.menuName}
+        restaurant={data.restaurant}
+      />
     </div>
   )
 }

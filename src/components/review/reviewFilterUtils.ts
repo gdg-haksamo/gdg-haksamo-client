@@ -12,3 +12,15 @@ export type RestaurantTab = (typeof RESTAURANT_TABS)[number]
 export function tabToRestaurant(tab: RestaurantTab): string | null {
   return tab === '전체' ? null : tab
 }
+
+export function restaurantToTab(restaurant: string): RestaurantTab {
+  if (!restaurant) return '전체'
+
+  const match = RESTAURANT_TABS.find(
+    (tab) =>
+      tab !== '전체' &&
+      (tab === restaurant || tab.includes(restaurant) || restaurant.includes(tab)),
+  )
+
+  return match ?? '전체'
+}

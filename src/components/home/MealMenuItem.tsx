@@ -1,6 +1,7 @@
 import { Star } from 'lucide-react'
 
 export type MealMenuItemType = {
+  menuId?: number
   name: string
   rating?: number
   price: number
@@ -19,7 +20,7 @@ export default function MealMenuItem({
 }: MealMenuItemProps) {
   return (
     <div
-      className={`flex items-center justify-between border-b border-[#f5f5f5] px-5 py-3.5 last:border-b-0 ${soldOut ? 'opacity-50' : ''}`}
+      className={`flex min-h-[52px] items-center justify-between border-b border-[#f5f5f5] px-5 py-3.5 last:border-b-0 ${soldOut ? 'opacity-50' : ''}`}
     >
       <div className="flex items-center gap-2">
         <span className="text-[13px] font-semibold text-black">{name}</span>

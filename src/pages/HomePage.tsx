@@ -1,13 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
 import { animate, motion, useMotionValue, useTransform } from 'framer-motion'
 import { RefreshCw } from 'lucide-react'
-import { useQuery } from '@tanstack/react-query'
+import { useQueries, useQuery } from '@tanstack/react-query'
 import CafeteriaTabMenu from '@/components/home/CafeteriaTabMenu'
 import MealCard from '@/components/home/MealCard'
 import RecommendedMenuCard from '@/components/home/RecommendedMenuCard'
 import type { MealMenuItemType } from '@/components/home/MealMenuItem'
+import { getAccessToken } from '@/apis/http'
+import { getRestaurants, getRestaurantMenus } from '@/apis/modules/restaurants'
 import { getMenus } from '@/apis/modules/menus'
-import type { MenuResponse } from '@/apis/types'
+import type { MenuResponse, RestaurantMenuResponse } from '@/apis/types'
 
 const PULL_THRESHOLD = 70
 const MAX_PULL = 90
@@ -27,25 +29,65 @@ function toDateString(date: Date): string {
   return `${y}-${m}-${d}`
 }
 
-const toMenuItem = (menu: MenuResponse): MealMenuItemType => ({
-  name: menu.menuName,
-  rating: menu.averageRating ?? 0,
-  price: menu.price,
-  soldOut: menu.soldOut,
-})
-
 const matchRestaurant = (menuRestaurant: string, tabName: string) => {
   const a = menuRestaurant.trim()
   const b = tabName.trim()
   return a === b || a.includes(b) || b.includes(a)
 }
 
+function findMenuId(catalogMenus: RestaurantMenuResponse[], menuName: string): number | undefined {
+  const exact = catalogMenus.find((m) => m.name === menuName)
+  if (exact) return exact.menuId
+
+  const partialMatches = catalogMenus
+    .filter((m) => menuName.includes(m.name) || m.name.includes(menuName))
+    .sort((a, b) => b.name.length - a.name.length)
+
+  return partialMatches[0]?.menuId
+}
+
+function resolveMealMenuId(
+  menuName: string,
+  cafeteriaName: string,
+  restaurants: { restaurantId: number; name: string }[] | undefined,
+  menuQueries: { data?: RestaurantMenuResponse[] }[],
+): number | undefined {
+  const restaurantIndex =
+    restaurants?.findIndex((r) => matchRestaurant(r.name, cafeteriaName)) ?? -1
+  const catalog = restaurantIndex >= 0 ? (menuQueries[restaurantIndex]?.data ?? []) : []
+  const id = findMenuId(catalog, menuName)
+  if (id) return id
+
+  for (const query of menuQueries) {
+    const fallbackId = findMenuId(query.data ?? [], menuName)
+    if (fallbackId) return fallbackId
+  }
+
+  return undefined
+}
+
 export default function HomePage() {
   const currentMeal = getCurrentMealType()
   const today = toDateString(new Date())
+  const hasToken = !!getAccessToken()
+
   const { data } = useQuery({
     queryKey: ['menus', today],
     queryFn: () => getMenus(today),
+  })
+
+  const { data: restaurants } = useQuery({
+    queryKey: ['restaurants'],
+    queryFn: getRestaurants,
+    enabled: hasToken,
+  })
+
+  const menuQueries = useQueries({
+    queries: (restaurants ?? []).map((r) => ({
+      queryKey: ['restaurant-menus', r.restaurantId],
+      queryFn: () => getRestaurantMenus(r.restaurantId),
+      enabled: hasToken,
+    })),
   })
 
   const refreshRef = useRef<(() => void) | null>(null)
@@ -55,9 +97,18 @@ export default function HomePage() {
   const filterMenus = (menus: MenuResponse[]) =>
     menus.filter((m) => matchRestaurant(m.restaurant, selectedCafeteriaName))
 
-  const breakfast = filterMenus(data?.breakfast.menus ?? []).map(toMenuItem)
-  const lunch = filterMenus(data?.lunch.menus ?? []).map(toMenuItem)
-  const dinner = filterMenus(data?.dinner.menus ?? []).map(toMenuItem)
+  const mapToMenuItems = (menus: MenuResponse[]): MealMenuItemType[] =>
+    menus.map((menu) => ({
+      name: menu.menuName,
+      rating: menu.averageRating ?? 0,
+      price: menu.price,
+      soldOut: menu.soldOut,
+      menuId: resolveMealMenuId(menu.menuName, selectedCafeteriaName, restaurants, menuQueries),
+    }))
+
+  const breakfast = mapToMenuItems(filterMenus(data?.breakfast.menus ?? []))
+  const lunch = mapToMenuItems(filterMenus(data?.lunch.menus ?? []))
+  const dinner = mapToMenuItems(filterMenus(data?.dinner.menus ?? []))
 
   const containerRef = useRef<HTMLDivElement>(null)
 

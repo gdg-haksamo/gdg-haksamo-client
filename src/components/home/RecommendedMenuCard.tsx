@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { animate, AnimatePresence, motion, useMotionValue } from 'framer-motion'
 import { MapPin, Pencil } from 'lucide-react'
 import { useMutation, useQuery } from '@tanstack/react-query'
@@ -49,6 +50,7 @@ function SlotMachine({ items, targetIdx }: { items: string[]; targetIdx: number 
 }
 
 export default function RecommendedMenuCard({ refreshRef }: Props) {
+  const navigate = useNavigate()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [recs, setRecs] = useState<TodayRecommendationResponse[]>([])
   const recsRef = useRef<TodayRecommendationResponse[]>([])
@@ -152,64 +154,71 @@ export default function RecommendedMenuCard({ refreshRef }: Props) {
             )}
           </AnimatePresence>
 
-          <div className="bg-gradient-to-br from-white via-white to-[#fff0f0]">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={recommendation.menuId}
-                initial={{ opacity: 0, y: 24 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -24 }}
-                transition={{ duration: 0.25, ease: 'easeInOut' }}
-                className="flex h-[200px] flex-col px-5 py-5 pr-[160px]"
-              >
-                <span className="text-[12px] font-bold tracking-wide text-[#e31e2d]">
-                  오늘의 추천 메뉴
-                </span>
-                <span className="mt-2 text-[22px] font-bold leading-tight text-black">
-                  {recommendation.menuName}
-                </span>
-                <span className="mt-1.5 text-[18px] font-bold leading-none text-[#333]">
-                  {recommendation.price.toLocaleString()}원
-                </span>
-                <div className="mt-auto flex items-center gap-3">
-                  <div className="flex items-center gap-1">
-                    <MapPin size={14} className="text-[#a0a0a0]" />
-                    <span className="text-[13px] font-medium text-[#606060]">
-                      {recommendation.restaurant}
-                    </span>
-                  </div>
-                </div>
-              </motion.div>
-            </AnimatePresence>
-
-            {recommendation.imageUrl ? (
+          <button
+            type="button"
+            onClick={() => navigate(`/info/${recommendation.menuId}`)}
+            disabled={showOverlay}
+            className="relative block w-full text-left disabled:cursor-default"
+          >
+            <div className="bg-gradient-to-br from-white via-white to-[#fff0f0]">
               <AnimatePresence mode="wait">
-                <motion.img
+                <motion.div
                   key={recommendation.menuId}
-                  src={recommendation.imageUrl}
-                  alt={recommendation.menuName}
                   initial={{ opacity: 0, y: 24 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -24 }}
                   transition={{ duration: 0.25, ease: 'easeInOut' }}
-                  draggable={false}
-                  className="absolute right-0 top-0 h-full w-[148px] object-cover"
-                />
+                  className="flex h-[200px] flex-col px-5 py-5 pr-[160px]"
+                >
+                  <span className="text-[12px] font-bold tracking-wide text-[#e31e2d]">
+                    오늘의 추천 메뉴
+                  </span>
+                  <span className="mt-2 text-[22px] font-bold leading-tight text-black">
+                    {recommendation.menuName}
+                  </span>
+                  <span className="mt-1.5 text-[18px] font-bold leading-none text-[#333]">
+                    {recommendation.price.toLocaleString()}원
+                  </span>
+                  <div className="mt-auto flex items-center gap-3">
+                    <div className="flex items-center gap-1">
+                      <MapPin size={14} className="text-[#a0a0a0]" />
+                      <span className="text-[13px] font-medium text-[#606060]">
+                        {recommendation.restaurant}
+                      </span>
+                    </div>
+                  </div>
+                </motion.div>
               </AnimatePresence>
-            ) : (
-              <div className="absolute right-0 top-0 flex h-full w-[148px] items-center justify-center bg-[#fce8ea]">
-                <img src={hobanWoo} alt="" className="h-24 w-auto opacity-80" draggable={false} />
-              </div>
-            )}
 
-            <button
-              type="button"
-              onClick={() => setIsModalOpen(true)}
-              className="absolute right-3 top-3 z-20 flex size-7 items-center justify-center rounded-full bg-white/80 shadow-sm backdrop-blur-sm"
-            >
-              <Pencil size={13} className="text-[#606060]" />
-            </button>
-          </div>
+              {recommendation.imageUrl ? (
+                <AnimatePresence mode="wait">
+                  <motion.img
+                    key={recommendation.menuId}
+                    src={recommendation.imageUrl}
+                    alt={recommendation.menuName}
+                    initial={{ opacity: 0, y: 24 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -24 }}
+                    transition={{ duration: 0.25, ease: 'easeInOut' }}
+                    draggable={false}
+                    className="absolute right-0 top-0 h-full w-[148px] object-cover"
+                  />
+                </AnimatePresence>
+              ) : (
+                <div className="absolute right-0 top-0 flex h-full w-[148px] items-center justify-center bg-[#fce8ea]">
+                  <img src={hobanWoo} alt="" className="h-24 w-auto opacity-80" draggable={false} />
+                </div>
+              )}
+            </div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setIsModalOpen(true)}
+            className="absolute right-3 top-3 z-20 flex size-7 items-center justify-center rounded-full bg-white/80 shadow-sm backdrop-blur-sm"
+          >
+            <Pencil size={13} className="text-[#606060]" />
+          </button>
         </div>
       </div>
 
