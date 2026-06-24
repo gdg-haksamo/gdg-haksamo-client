@@ -49,6 +49,7 @@ export interface MenuResponse {
   menuName: string
   price: number
   averageRating: number | null
+  soldOut?: boolean
 }
 
 export interface MealMenusResponse {
@@ -81,6 +82,7 @@ export interface MenuDetailResponse {
   menuName: string
   price: number
   restaurant: string
+  soldOut?: boolean
   operatingTime: string | null
   description: string | null
   imageUrl: string | null
