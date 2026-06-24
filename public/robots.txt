@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://haksamo.gdg.kr/sitemap.xml
