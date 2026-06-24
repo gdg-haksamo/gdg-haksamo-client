@@ -144,7 +144,7 @@ export default function SignupPage() {
   const [nickname, setNickname] = useState('')
   const [password, setPassword] = useState('')
   const [department, setDepartment] = useState('')
-  const [selectedRestaurantIds, setSelectedRestaurantIds] = useState<number[]>([])
+  const [selectedRestaurantId, setSelectedRestaurantId] = useState<number | null>(null)
 
   // Step 3
   const [selectedKeywords, setSelectedKeywords] = useState<string[]>([])
@@ -194,7 +194,7 @@ export default function SignupPage() {
         password,
         nickname,
         department: department || undefined,
-        restaurantIds: selectedRestaurantIds.length > 0 ? selectedRestaurantIds : undefined,
+        restaurantIds: selectedRestaurantId != null ? [selectedRestaurantId] : undefined,
         keywords: selectedKeywords.length > 0 ? (selectedKeywords as KeywordCode[]) : undefined,
       })
       const { accessToken } = await login({ email, password })
@@ -207,9 +207,7 @@ export default function SignupPage() {
   })
 
   const toggleRestaurant = (id: number) => {
-    setSelectedRestaurantIds((prev) =>
-      prev.includes(id) ? prev.filter((r) => r !== id) : [...prev, id],
-    )
+    setSelectedRestaurantId((prev) => (prev === id ? null : id))
   }
 
   const toggleKeyword = (kw: string) => {
@@ -347,16 +345,14 @@ export default function SignupPage() {
                 <div className="flex flex-col gap-3">
                   <div>
                     <p className="text-[14px] font-semibold text-black">식당 선택</p>
-                    <p className="text-[12px] text-[#A0A0A0]">
-                      자주 가는 식당을 선택해주세요 (복수 선택 가능)
-                    </p>
+                    <p className="text-[12px] text-[#A0A0A0]">자주 가는 식당을 하나 선택해주세요</p>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {RESTAURANTS.map((r) => (
                       <Chip
                         key={r.restaurantId}
                         label={r.name}
-                        selected={selectedRestaurantIds.includes(r.restaurantId)}
+                        selected={selectedRestaurantId === r.restaurantId}
                         onToggle={() => toggleRestaurant(r.restaurantId)}
                       />
                     ))}
