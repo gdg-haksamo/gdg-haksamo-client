@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Navigate } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
-import { ChevronLeft, Users, CalendarDays, RefreshCw, UtensilsCrossed } from 'lucide-react'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import { LogOut, Users, CalendarDays, RefreshCw, UtensilsCrossed } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { getMyPage } from '@/apis/me'
+import { logout } from '@/apis/auth'
+import { setAccessToken } from '@/apis/http'
 import UserManagement from '@/components/admin/UserManagement'
 import EventManagement from '@/components/admin/EventManagement'
 import CrawlSection from '@/components/admin/CrawlSection'
@@ -30,6 +32,16 @@ export default function AdminPage() {
   const storedRestaurantId = useAuthStore((s) => s.managedRestaurantId)
   const setAuth = useAuthStore((s) => s.setAuth)
   const isLoggedIn = useAuthStore((s) => s.isLoggedIn)
+  const clearAuth = useAuthStore((s) => s.clearAuth)
+
+  const { mutate: handleLogout } = useMutation({
+    mutationFn: logout,
+    onSettled: () => {
+      setAccessToken(null)
+      clearAuth()
+      navigate('/login')
+    },
+  })
 
   // authStore에 role이 없으면 /api/me 재조회
   const { data: profile, isLoading } = useQuery({
@@ -71,10 +83,7 @@ export default function AdminPage() {
         {/* ── 사이드바 (PC) / 헤더 (모바일) ── */}
         <aside className="flex shrink-0 flex-col md:w-60 md:min-h-dvh md:border-r md:border-[#f0f0f0] md:bg-white md:shadow-[2px_0_8px_0_rgba(0,0,0,0.04)]">
           {/* 공통 헤더 영역 */}
-          <div className="flex h-[65px] items-center gap-3 border-b border-[#f0f0f0] px-5 md:h-[72px] md:px-6">
-            <button type="button" onClick={() => navigate(-1)} aria-label="뒤로가기">
-              <ChevronLeft size={24} className="text-black" />
-            </button>
+          <div className="flex h-[65px] items-center justify-between border-b border-[#f0f0f0] px-5 md:h-[72px] md:px-6">
             <div className="flex flex-col">
               <p className="text-[17px] font-bold leading-none text-black">관리자</p>
               <span
@@ -87,6 +96,9 @@ export default function AdminPage() {
                 {role === 'SUPER_ADMIN' ? '슈퍼 관리자' : '식당 관리자'}
               </span>
             </div>
+            <button type="button" onClick={() => handleLogout()} aria-label="로그아웃">
+              <LogOut size={20} className="text-[#606060]" />
+            </button>
           </div>
 
           {/* 모바일: 수평 탭 / PC: 수직 사이드 메뉴 */}
