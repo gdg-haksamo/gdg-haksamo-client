@@ -21,8 +21,8 @@ export default function LoginPage() {
       setAccessToken(accessToken)
       return getMyPage()
     },
-    onSuccess: ({ nickname, role }) => {
-      setAuth(nickname, role)
+    onSuccess: ({ nickname, role, managedRestaurantId }) => {
+      setAuth(nickname, role, managedRestaurantId)
       navigate(role === 'SUPER_ADMIN' || role === 'RESTAURANT_ADMIN' ? '/admin' : '/')
     },
   })
