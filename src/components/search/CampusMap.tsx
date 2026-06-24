@@ -3,7 +3,7 @@ import { motion, useMotionValue } from 'framer-motion'
 import { Plus, Minus } from 'lucide-react'
 import campusMap from '@/assets/campus-map.svg'
 import cafeteriaMarker from '@/assets/cafeteria-marker.svg'
-import type { CafeteriaInfo } from '@/mocks/search'
+import type { CafeteriaInfo } from './types'
 
 const MIN_SCALE = 1
 const MAX_SCALE = 4
