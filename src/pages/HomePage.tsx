@@ -8,16 +8,15 @@ import RecommendedMenuCard from '@/components/home/RecommendedMenuCard'
 import type { MealMenuItemType } from '@/components/home/MealMenuItem'
 import { getMenus } from '@/apis/modules/menus'
 import type { MenuResponse } from '@/apis/types'
-import { MOCK_RECOMMENDED_MENUS } from '@/mocks/home'
 
 const PULL_THRESHOLD = 70
 const MAX_PULL = 90
 
 function getCurrentMealType(): string | null {
   const hour = new Date().getHours()
-  if (hour < 9) return '아침'
-  if (hour < 14) return '중식'
-  if (hour < 19) return '저녁'
+  if (hour < 10) return '아침'
+  if (hour < 15) return '중식'
+  if (hour < 21) return '저녁'
   return null
 }
 
@@ -41,14 +40,13 @@ const matchRestaurant = (menuRestaurant: string, tabName: string) => {
 export default function HomePage() {
   const currentMeal = getCurrentMealType()
   const today = toDateString(new Date())
-
   const { data } = useQuery({
     queryKey: ['menus', today],
     queryFn: () => getMenus(today),
   })
 
-  const [menuIndex, setMenuIndex] = useState(0)
-  const [isRefreshing, setIsRefreshing] = useState(false)
+  const refreshRef = useRef<(() => void) | null>(null)
+
   const [selectedCafeteriaName, setSelectedCafeteriaName] = useState<string>('공식당')
 
   const filterMenus = (menus: MenuResponse[]) =>
@@ -59,15 +57,10 @@ export default function HomePage() {
   const dinner = filterMenus(data?.dinner.menus ?? []).map(toMenuItem)
 
   const containerRef = useRef<HTMLDivElement>(null)
-  const isRefreshingRef = useRef(false)
 
   const pullHeight = useMotionValue(0)
   const indicatorOpacity = useTransform(pullHeight, [0, PULL_THRESHOLD], [0, 1])
   const iconRotation = useTransform(pullHeight, [0, PULL_THRESHOLD], [0, 180])
-
-  useEffect(() => {
-    isRefreshingRef.current = isRefreshing
-  }, [isRefreshing])
 
   useEffect(() => {
     const main = containerRef.current?.parentElement
@@ -79,11 +72,11 @@ export default function HomePage() {
     const triggerOrCancel = () => {
       const h = pullHeight.get()
       animate(pullHeight, 0, { type: 'spring', stiffness: 300, damping: 28 })
-      if (h >= PULL_THRESHOLD) setIsRefreshing(true)
+      if (h >= PULL_THRESHOLD) refreshRef.current?.()
     }
 
     const onTouchStart = (e: TouchEvent) => {
-      if (main.scrollTop > 0 || isRefreshingRef.current) return
+      if (main.scrollTop > 0) return
       startY = e.touches[0].clientY
       pulling = true
     }
@@ -104,7 +97,7 @@ export default function HomePage() {
     }
 
     const onMouseDown = (e: MouseEvent) => {
-      if (main.scrollTop > 0 || isRefreshingRef.current || e.button !== 0) return
+      if (main.scrollTop > 0 || e.button !== 0) return
       e.preventDefault()
       startY = e.clientY
       pulling = true
@@ -155,15 +148,6 @@ export default function HomePage() {
     }
   }, [pullHeight])
 
-  useEffect(() => {
-    if (!isRefreshing) return
-    const timer = setTimeout(() => {
-      setMenuIndex((prev) => (prev + 1) % MOCK_RECOMMENDED_MENUS.length)
-      setIsRefreshing(false)
-    }, 3000)
-    return () => clearTimeout(timer)
-  }, [isRefreshing])
-
   return (
     <div ref={containerRef} className="flex flex-col px-5 py-4">
       <motion.div
@@ -176,7 +160,7 @@ export default function HomePage() {
       </motion.div>
 
       <div className="flex flex-col gap-4">
-        <RecommendedMenuCard menuIndex={menuIndex} isRefreshing={isRefreshing} />
+        <RecommendedMenuCard refreshRef={refreshRef} />
         <CafeteriaTabMenu onChange={setSelectedCafeteriaName} />
         <div className="flex flex-col gap-3">
           <MealCard mealType="아침" items={breakfast} defaultOpen={currentMeal === '아침'} />
