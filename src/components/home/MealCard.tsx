@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { ChevronDown, Utensils } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 import MealMenuItem, { type MealMenuItemType } from './MealMenuItem'
@@ -12,6 +13,7 @@ type MealCardProps = {
 }
 
 export default function MealCard({ mealType, items, defaultOpen = false }: MealCardProps) {
+  const navigate = useNavigate()
   const [isOpen, setIsOpen] = useState(defaultOpen)
 
   return (
@@ -47,9 +49,20 @@ export default function MealCard({ mealType, items, defaultOpen = false }: MealC
             transition={{ duration: 0.3, ease: 'easeInOut' }}
             style={{ overflow: 'hidden' }}
           >
-            {items.map((item, index) => (
-              <MealMenuItem key={index} {...item} />
-            ))}
+            {items.map((item, index) =>
+              item.menuId ? (
+                <button
+                  key={item.menuId ?? `${item.name}-${index}`}
+                  type="button"
+                  className="w-full cursor-pointer text-left"
+                  onClick={() => navigate(`/info/${item.menuId}`)}
+                >
+                  <MealMenuItem {...item} />
+                </button>
+              ) : (
+                <MealMenuItem key={`${item.name}-${index}`} {...item} />
+              ),
+            )}
           </motion.div>
         )}
       </AnimatePresence>

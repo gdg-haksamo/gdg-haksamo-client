@@ -1,6 +1,7 @@
 import { Star } from 'lucide-react'
 
 export type MealMenuItemType = {
+  menuId?: number
   name: string
   rating?: number
   price: number
