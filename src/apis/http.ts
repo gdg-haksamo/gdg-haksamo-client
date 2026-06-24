@@ -18,9 +18,11 @@ export const setAccessToken = (token: string | null) => {
 const BASE_URL = import.meta.env.VITE_API_BASE_URL
 
 // reissue 전용 — 인터셉터 없이 쿠키만으로 요청
-const baseAxios = axios.create({ baseURL: BASE_URL, withCredentials: true })
+const TIMEOUT_MS = 10_000
 
-const http = axios.create({ baseURL: BASE_URL, withCredentials: true })
+const baseAxios = axios.create({ baseURL: BASE_URL, withCredentials: true, timeout: TIMEOUT_MS })
+
+const http = axios.create({ baseURL: BASE_URL, withCredentials: true, timeout: TIMEOUT_MS })
 
 // ── Request Interceptor: Access Token 주입 ─────────────────────────────────────
 
