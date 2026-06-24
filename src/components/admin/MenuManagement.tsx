@@ -8,26 +8,35 @@ import {
   toggleSoldOut,
   updateAdminMenu,
 } from '@/apis/admin'
-import type { AdminMenuResponse } from '@/apis/types'
+import type { ManagedMenuResponse, MealTime } from '@/apis/types'
+
+const MEAL_TIME_LABEL: Record<MealTime, string> = {
+  BREAKFAST: '아침',
+  LUNCH: '점심',
+  DINNER: '저녁',
+}
 
 type Modal =
   | { type: 'create' }
-  | { type: 'edit'; menu: AdminMenuResponse }
-  | { type: 'delete'; menu: AdminMenuResponse }
+  | { type: 'edit'; menu: ManagedMenuResponse }
+  | { type: 'delete'; menu: ManagedMenuResponse }
   | null
 
-export default function MenuManagement() {
+type Props = {
+  managedRestaurantId: number | null
+}
+
+export default function MenuManagement({ managedRestaurantId }: Props) {
   const qc = useQueryClient()
   const [modal, setModal] = useState<Modal>(null)
 
   const { data: menus, isLoading } = useQuery({
     queryKey: ['admin-menus'],
-    queryFn: getAdminMenus,
+    queryFn: () => getAdminMenus(),
   })
 
   const { mutate: toggleSoldOutMutate } = useMutation({
-    mutationFn: ({ menuId, soldOut }: { menuId: number; soldOut: boolean }) =>
-      toggleSoldOut(menuId, soldOut),
+    mutationFn: (scheduleId: number) => toggleSoldOut(scheduleId),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-menus'] }),
   })
 
@@ -49,12 +58,15 @@ export default function MenuManagement() {
       <div className="flex flex-col gap-2">
         {menus?.map((menu) => (
           <div
-            key={menu.menuId}
+            key={menu.scheduleId}
             className="flex items-center justify-between rounded-xl bg-white p-4 shadow-[0px_2px_8px_0px_rgba(0,0,0,0.07)]"
           >
             <div className="flex min-w-0 flex-col gap-0.5">
               <div className="flex items-center gap-2">
                 <span className="truncate text-[14px] font-semibold text-black">{menu.name}</span>
+                <span className="shrink-0 rounded-full bg-[#f0f0f0] px-2 py-0.5 text-[10px] font-semibold text-[#606060]">
+                  {MEAL_TIME_LABEL[menu.time]}
+                </span>
                 {menu.soldOut && (
                   <span className="shrink-0 rounded-full bg-[#f5f5f5] px-2 py-0.5 text-[10px] font-bold text-[#a0a0a0]">
                     품절
@@ -67,7 +79,7 @@ export default function MenuManagement() {
             <div className="flex shrink-0 items-center gap-1 pl-2">
               <button
                 type="button"
-                onClick={() => toggleSoldOutMutate({ menuId: menu.menuId, soldOut: !menu.soldOut })}
+                onClick={() => toggleSoldOutMutate(menu.scheduleId)}
                 className={`rounded-lg px-2.5 py-1.5 text-[11px] font-bold transition-colors ${
                   menu.soldOut ? 'bg-[#1a9e5c] text-white' : 'bg-[#f5f5f5] text-[#606060]'
                 }`}
@@ -91,6 +103,7 @@ export default function MenuManagement() {
       {(modal?.type === 'create' || modal?.type === 'edit') && (
         <MenuFormModal
           initial={modal.type === 'edit' ? modal.menu : undefined}
+          managedRestaurantId={managedRestaurantId}
           onClose={() => setModal(null)}
           onSuccess={invalidate}
         />
@@ -161,22 +174,30 @@ function BottomSheet({
 
 function MenuFormModal({
   initial,
+  managedRestaurantId,
   onClose,
   onSuccess,
 }: {
-  initial?: AdminMenuResponse
+  initial?: ManagedMenuResponse
+  managedRestaurantId: number | null
   onClose: () => void
   onSuccess: () => void
 }) {
   const isEdit = !!initial
   const [name, setName] = useState(initial?.name ?? '')
   const [price, setPrice] = useState(String(initial?.price ?? ''))
+  const [time, setTime] = useState<MealTime>(initial?.time ?? 'LUNCH')
 
   const { mutate, isPending, error } = useMutation({
     mutationFn: () =>
       isEdit
         ? updateAdminMenu(initial!.menuId, { name, price: Number(price) })
-        : createAdminMenu({ name, price: Number(price) }),
+        : createAdminMenu({
+            restaurantId: managedRestaurantId!,
+            name,
+            price: Number(price),
+            time,
+          }),
     onSuccess: () => {
       onSuccess()
       onClose()
@@ -205,10 +226,29 @@ function MenuFormModal({
             className="rounded-xl bg-[#f5f5f5] px-4 py-3 text-[14px] outline-none placeholder:text-[#b0b0b0]"
           />
         </div>
+        {!isEdit && (
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[12px] font-semibold text-[#606060]">끼니</label>
+            <div className="flex gap-2">
+              {(['BREAKFAST', 'LUNCH', 'DINNER'] as const).map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => setTime(t)}
+                  className={`flex-1 rounded-xl py-2.5 text-[13px] font-bold transition-colors ${
+                    time === t ? 'bg-[#e31e2d] text-white' : 'bg-[#f5f5f5] text-[#606060]'
+                  }`}
+                >
+                  {MEAL_TIME_LABEL[t]}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
         {error && <p className="text-[12px] text-[#e31e2d]">{(error as Error).message}</p>}
         <button
           type="button"
-          disabled={isPending || !name || !price}
+          disabled={isPending || !name || !price || (!isEdit && !managedRestaurantId)}
           onClick={() => mutate()}
           className="mt-1 w-full rounded-xl bg-[#e31e2d] py-3.5 text-[14px] font-bold text-white disabled:opacity-40"
         >
@@ -224,7 +264,7 @@ function DeleteModal({
   onClose,
   onSuccess,
 }: {
-  menu: AdminMenuResponse
+  menu: ManagedMenuResponse
   onClose: () => void
   onSuccess: () => void
 }) {

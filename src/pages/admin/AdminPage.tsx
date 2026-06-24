@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { ChevronLeft, Users, CalendarDays, RefreshCw, UtensilsCrossed } from 'lucide-react'
@@ -27,6 +27,7 @@ const RESTAURANT_ADMIN_TABS: { label: RestaurantAdminTab; icon: React.ReactNode 
 export default function AdminPage() {
   const navigate = useNavigate()
   const storedRole = useAuthStore((s) => s.role)
+  const storedRestaurantId = useAuthStore((s) => s.managedRestaurantId)
   const setAuth = useAuthStore((s) => s.setAuth)
   const isLoggedIn = useAuthStore((s) => s.isLoggedIn)
 
@@ -38,9 +39,11 @@ export default function AdminPage() {
     retry: false,
   })
 
-  if (profile?.role && !storedRole) {
-    setAuth(profile.nickname, profile.role)
-  }
+  useEffect(() => {
+    if (profile?.role && !storedRole) {
+      setAuth(profile.nickname, profile.role, profile.managedRestaurantId)
+    }
+  }, [profile, storedRole, setAuth])
 
   const role: UserRole | null = storedRole ?? profile?.role ?? null
 
@@ -122,7 +125,9 @@ export default function AdminPage() {
             {currentTab === '계정 관리' && <UserManagement />}
             {currentTab === '이벤트/공지' && <EventManagement />}
             {currentTab === '크롤링' && <CrawlSection />}
-            {currentTab === '메뉴 관리' && <MenuManagement />}
+            {currentTab === '메뉴 관리' && (
+              <MenuManagement managedRestaurantId={storedRestaurantId} />
+            )}
           </div>
         </main>
       </div>
