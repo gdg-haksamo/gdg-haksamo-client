@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Navigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { ChevronLeft, Users, CalendarDays, RefreshCw, UtensilsCrossed } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
@@ -49,10 +49,7 @@ export default function AdminPage() {
 
   const [activeTab, setActiveTab] = useState<Tab>('계정 관리')
 
-  if (!isLoggedIn) {
-    navigate('/login', { replace: true })
-    return null
-  }
+  if (!isLoggedIn) return <Navigate to="/login" replace />
 
   if (isLoading) {
     return (
@@ -62,10 +59,7 @@ export default function AdminPage() {
     )
   }
 
-  if (role !== 'SUPER_ADMIN' && role !== 'RESTAURANT_ADMIN') {
-    navigate('/', { replace: true })
-    return null
-  }
+  if (role !== 'SUPER_ADMIN' && role !== 'RESTAURANT_ADMIN') return <Navigate to="/" replace />
 
   const tabs = role === 'SUPER_ADMIN' ? SUPER_ADMIN_TABS : RESTAURANT_ADMIN_TABS
   const currentTab = tabs.find((t) => t.label === activeTab)?.label ?? tabs[0].label
