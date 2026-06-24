@@ -66,12 +66,14 @@ export default function CafeteriaBottomSheet({ cafeteria, onClose }: Props) {
                 </p>
               ) : (
                 <div className="mx-5 overflow-hidden rounded-xl border border-[#f0f0f0]">
-                  {cafeteria.menus.map((menu) => (
+                  {cafeteria.menus.map((menu, index) => (
                     <button
-                      key={menu.menuId}
+                      key={`${menu.menuId ?? menu.name}-${index}`}
                       type="button"
-                      className="w-full text-left"
+                      className="w-full text-left disabled:cursor-default"
+                      disabled={!menu.menuId}
                       onClick={() => {
+                        if (!menu.menuId) return
                         onClose()
                         navigate(`/info/${menu.menuId}`)
                       }}
