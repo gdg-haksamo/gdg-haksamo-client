@@ -1,5 +1,11 @@
 import axios from 'axios'
 import type { AxiosRequestConfig, InternalAxiosRequestConfig } from 'axios'
+
+declare module 'axios' {
+  interface InternalAxiosRequestConfig {
+    skipRefresh?: boolean
+  }
+}
 import { ApiError } from './error'
 import { ENDPOINTS } from './endpoints'
 import type { ApiResponse, TokenResponse } from './types'
@@ -48,7 +54,7 @@ http.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.skipRefresh) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           refreshQueue.push((token) => {
