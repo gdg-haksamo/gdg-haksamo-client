@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Search, X, ChevronRight } from 'lucide-react'
 import { useQueries, useQuery } from '@tanstack/react-query'
 import CampusMap from '@/components/search/CampusMap'
@@ -17,6 +18,7 @@ const BASE_CAFETERIAS = [
 ] as const
 
 export default function SearchPage() {
+  const navigate = useNavigate()
   const [query, setQuery] = useState('')
   const [selectedCafeteria, setSelectedCafeteria] = useState<CafeteriaInfo | null>(null)
 
@@ -102,15 +104,21 @@ export default function SearchPage() {
           ) : (
             <div className="flex max-h-[200px] flex-col gap-2 overflow-y-auto">
               {matchedCafeterias.map((cafe) => {
-                const matchedMenu =
-                  cafe.menus.find((m) => m.name.toLowerCase().includes(query.toLowerCase())) ??
-                  cafe.menus[0]
+                const q = query.toLowerCase()
+                const matchedMenu = cafe.menus.find((m) => m.name.toLowerCase().includes(q))
+                const displayMenu = matchedMenu ?? cafe.menus[0]
 
                 return (
                   <button
                     key={cafe.id}
                     type="button"
-                    onClick={() => setSelectedCafeteria(cafe)}
+                    onClick={() => {
+                      if (matchedMenu) {
+                        navigate(`/info/${matchedMenu.menuId}`)
+                      } else {
+                        setSelectedCafeteria(cafe)
+                      }
+                    }}
                     className="flex items-center gap-3 rounded-[10px] bg-[#f0f0f0] p-3 text-left"
                   >
                     <img src={cafeteriaMarker} alt="" className="size-7 shrink-0" />
@@ -119,13 +127,13 @@ export default function SearchPage() {
                         <span className="text-[14px] font-bold text-black">{cafe.name}</span>
                         <span className="text-[11px] text-[#606060]">{cafe.building}</span>
                       </div>
-                      {matchedMenu && (
+                      {displayMenu && (
                         <div className="flex items-center justify-between">
                           <span className="text-[13px] font-semibold text-[#333]">
-                            {matchedMenu.name}
+                            {displayMenu.name}
                           </span>
                           <span className="text-[13px] font-bold text-[#e31e2d]">
-                            {matchedMenu.price.toLocaleString()}원
+                            {displayMenu.price.toLocaleString()}원
                           </span>
                         </div>
                       )}
