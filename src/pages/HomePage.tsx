@@ -13,11 +13,12 @@ import { MOCK_RECOMMENDED_MENUS } from '@/mocks/home'
 const PULL_THRESHOLD = 70
 const MAX_PULL = 90
 
-function getCurrentMealType() {
+function getCurrentMealType(): string | null {
   const hour = new Date().getHours()
+  if (hour < 9) return '아침'
   if (hour < 14) return '중식'
   if (hour < 19) return '저녁'
-  return '아침'
+  return null
 }
 
 function toDateString(date: Date): string {
@@ -30,6 +31,12 @@ const toMenuItem = (menu: MenuResponse): MealMenuItemType => ({
   price: menu.price,
 })
 
+const matchRestaurant = (menuRestaurant: string, tabName: string) => {
+  const a = menuRestaurant.trim()
+  const b = tabName.trim()
+  return a === b || a.includes(b) || b.includes(a)
+}
+
 export default function HomePage() {
   const currentMeal = getCurrentMealType()
   const today = toDateString(new Date())
@@ -39,12 +46,16 @@ export default function HomePage() {
     queryFn: () => getMenus(today),
   })
 
-  const breakfast = data?.breakfast.menus.map(toMenuItem) ?? []
-  const lunch = data?.lunch.menus.map(toMenuItem) ?? []
-  const dinner = data?.dinner.menus.map(toMenuItem) ?? []
-
   const [menuIndex, setMenuIndex] = useState(0)
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [selectedCafeteriaName, setSelectedCafeteriaName] = useState<string>('공식당')
+
+  const filterMenus = (menus: MenuResponse[]) =>
+    menus.filter((m) => matchRestaurant(m.restaurant, selectedCafeteriaName))
+
+  const breakfast = filterMenus(data?.breakfast.menus ?? []).map(toMenuItem)
+  const lunch = filterMenus(data?.lunch.menus ?? []).map(toMenuItem)
+  const dinner = filterMenus(data?.dinner.menus ?? []).map(toMenuItem)
 
   const containerRef = useRef<HTMLDivElement>(null)
   const isRefreshingRef = useRef(false)
@@ -93,7 +104,7 @@ export default function HomePage() {
 
     const onMouseDown = (e: MouseEvent) => {
       if (main.scrollTop > 0 || isRefreshingRef.current || e.button !== 0) return
-      e.preventDefault() // 텍스트 선택 및 native 드래그 차단
+      e.preventDefault()
       startY = e.clientY
       pulling = true
     }
@@ -130,7 +141,6 @@ export default function HomePage() {
     }
   }, [pullHeight])
 
-  // 최초 진입 시 pull 힌트 애니메이션 (0→55→0)
   useEffect(() => {
     const t1 = setTimeout(() => {
       animate(pullHeight, 55, { duration: 0.45, ease: [0.2, 0, 0.8, 1] })
@@ -166,7 +176,7 @@ export default function HomePage() {
 
       <div className="flex flex-col gap-4">
         <RecommendedMenuCard menuIndex={menuIndex} isRefreshing={isRefreshing} />
-        <CafeteriaTabMenu />
+        <CafeteriaTabMenu onChange={setSelectedCafeteriaName} />
         <div className="flex flex-col gap-3">
           <MealCard mealType="아침" items={breakfast} defaultOpen={currentMeal === '아침'} />
           <MealCard mealType="중식" items={lunch} defaultOpen={currentMeal === '중식'} />

@@ -32,8 +32,10 @@ export default function SearchPage() {
 
   const cafeterias = useMemo<CafeteriaInfo[]>(() => {
     return BASE_CAFETERIAS.map((base) => {
-      const apiRestaurant = restaurants?.find((r) => r.name === base.name)
-      const queryIndex = restaurants?.findIndex((r) => r.name === base.name) ?? -1
+      const matchName = (a: string, b: string) =>
+        a.trim() === b.trim() || a.includes(b.trim()) || b.includes(a.trim())
+      const apiRestaurant = restaurants?.find((r) => matchName(r.name, base.name))
+      const queryIndex = restaurants?.findIndex((r) => matchName(r.name, base.name)) ?? -1
       const menusData = queryIndex >= 0 ? menuQueries[queryIndex]?.data : undefined
 
       return {
