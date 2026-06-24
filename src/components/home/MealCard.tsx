@@ -6,6 +6,10 @@ import MealMenuItem, { type MealMenuItemType } from './MealMenuItem'
 
 type MealType = '아침' | '중식' | '저녁'
 
+const MENU_ITEM_HEIGHT = 52
+const VISIBLE_MENU_COUNT = 5.5
+const MENU_LIST_MAX_HEIGHT = MENU_ITEM_HEIGHT * VISIBLE_MENU_COUNT
+
 type MealCardProps = {
   mealType: MealType
   items: MealMenuItemType[]
@@ -49,20 +53,27 @@ export default function MealCard({ mealType, items, defaultOpen = false }: MealC
             transition={{ duration: 0.3, ease: 'easeInOut' }}
             style={{ overflow: 'hidden' }}
           >
-            {items.map((item, index) =>
-              item.menuId ? (
-                <button
-                  key={item.menuId ?? `${item.name}-${index}`}
-                  type="button"
-                  className="w-full cursor-pointer text-left"
-                  onClick={() => navigate(`/info/${item.menuId}`)}
-                >
-                  <MealMenuItem {...item} />
-                </button>
-              ) : (
-                <MealMenuItem key={`${item.name}-${index}`} {...item} />
-              ),
-            )}
+            <div
+              className="overflow-y-auto"
+              style={{
+                maxHeight: items.length > VISIBLE_MENU_COUNT ? MENU_LIST_MAX_HEIGHT : undefined,
+              }}
+            >
+              {items.map((item, index) =>
+                item.menuId ? (
+                  <button
+                    key={item.menuId ?? `${item.name}-${index}`}
+                    type="button"
+                    className="w-full cursor-pointer text-left"
+                    onClick={() => navigate(`/info/${item.menuId}`)}
+                  >
+                    <MealMenuItem {...item} />
+                  </button>
+                ) : (
+                  <MealMenuItem key={`${item.name}-${index}`} {...item} />
+                ),
+              )}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
