@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ChevronLeft, Lock, User } from 'lucide-react'
+import mascot from '@/assets/mascot.png'
 import { useMutation } from '@tanstack/react-query'
 import { login } from '@/apis/auth'
 import { getMyPage } from '@/apis/me'
@@ -19,12 +20,11 @@ export default function LoginPage() {
     mutationFn: async () => {
       const { accessToken } = await login({ email, password })
       setAccessToken(accessToken)
-      const { nickname } = await getMyPage()
-      return nickname
+      return getMyPage()
     },
-    onSuccess: (nickname) => {
-      setAuth(nickname)
-      navigate('/')
+    onSuccess: ({ nickname, role, managedRestaurantId }) => {
+      setAuth(nickname, role, managedRestaurantId)
+      navigate(role === 'SUPER_ADMIN' || role === 'RESTAURANT_ADMIN' ? '/admin' : '/')
     },
   })
 
@@ -45,7 +45,7 @@ export default function LoginPage() {
         </header>
 
         <main className="flex flex-1 flex-col items-center justify-center gap-6 px-5 pb-10">
-          <div className="h-[120px] w-[120px] rounded-[16px] bg-[#F0F0F0]" />
+          <img src={mascot} alt="마스코트" className="h-[140px] w-auto" />
 
           <form onSubmit={handleSubmit} className="flex w-full flex-col gap-3">
             <div className="flex items-center gap-3 rounded-[12px] bg-[#F0F0F0] px-4 py-4">

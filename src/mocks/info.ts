@@ -5,6 +5,7 @@ export type MealInfoData = {
   rating: number
   reviewCount: number
   aiDescription: string
+  soldOut?: boolean
 }
 
 export type RestaurantInfoData = {

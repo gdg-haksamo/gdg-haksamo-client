@@ -40,6 +40,7 @@ export default function InfoPage() {
         rating={data.averageRating ?? 0}
         reviewCount={data.reviewCount}
         aiDescription={data.description ?? ''}
+        soldOut={data.soldOut}
       />
       <RestaurantInfo location={data.restaurant} time={data.operatingTime ?? ''} />
       <NutritionInfo

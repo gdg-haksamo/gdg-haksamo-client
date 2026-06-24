@@ -49,6 +49,7 @@ export interface MenuResponse {
   menuName: string
   price: number
   averageRating: number | null
+  soldOut?: boolean
 }
 
 export interface MealMenusResponse {
@@ -81,6 +82,7 @@ export interface MenuDetailResponse {
   menuName: string
   price: number
   restaurant: string
+  soldOut?: boolean
   operatingTime: string | null
   description: string | null
   imageUrl: string | null
@@ -137,6 +139,8 @@ export interface NotificationSettingsResponse {
 export interface MyPageResponse {
   nickname: string
   department: string
+  role?: UserRole
+  managedRestaurantId?: number | null
   reviewCount: number
   helpfulReceivedCount: number
   activeEventCount: number | null
@@ -214,6 +218,40 @@ export interface EventRequest {
 // ── Admin ─────────────────────────────────────────────────────────────────────
 
 export type UserRole = 'USER' | 'RESTAURANT_ADMIN' | 'SUPER_ADMIN'
+
+export type MealTime = 'BREAKFAST' | 'LUNCH' | 'DINNER'
+
+export interface ManagedMenuResponse {
+  scheduleId: number
+  menuId: number
+  name: string
+  price: number
+  time: MealTime
+  date: string
+  soldOut: boolean
+}
+
+export interface MenuAdminResponse {
+  menuId: number
+  restaurantId: number
+  name: string
+  price: number
+  category: string | null
+  imageUrl: string | null
+}
+
+export interface CreateMenuRequest {
+  restaurantId: number
+  name: string
+  price: number
+  time: MealTime
+  category?: string
+}
+
+export interface UpdateMenuRequest {
+  name?: string
+  price?: number
+}
 
 export interface AdminUserResponse {
   userId: number
