@@ -1,24 +1,40 @@
 import { useState } from 'react'
 import { PencilLine } from 'lucide-react'
-
-const ITEMS = ['공식당', '정보센터', '복지관', '카페테리아 첨성'] as const
-type Restaurant = (typeof ITEMS)[number]
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { getRestaurants } from '@/apis/restaurants'
+import { getMyPage, updateFavoriteRestaurants } from '@/apis/me'
 
 export function SelectRestaurant() {
+  const queryClient = useQueryClient()
   const [isEditing, setIsEditing] = useState(false)
-  const [selected, setSelected] = useState<Record<Restaurant, boolean>>({
-    공식당: true,
-    정보센터: true,
-    복지관: false,
-    '카페테리아 첨성': false,
-  })
+  const [draft, setDraft] = useState<number[]>([])
 
-  const toggleRestaurant = (label: Restaurant) => {
-    if (!isEditing) return
-    setSelected((prev) => ({ ...prev, [label]: !prev[label] }))
+  const { data: restaurants } = useQuery({ queryKey: ['restaurants'], queryFn: getRestaurants })
+  const { data: myData } = useQuery({ queryKey: ['me'], queryFn: getMyPage })
+
+  const serverIds = myData?.favoriteRestaurants?.map((r) => r.restaurantId) ?? []
+  const selectedIds = isEditing ? draft : serverIds
+
+  const startEdit = () => {
+    setDraft(serverIds)
+    setIsEditing(true)
   }
 
-  const visibleItems = isEditing ? ITEMS : ITEMS.filter((label) => selected[label])
+  const { mutate: save, isPending } = useMutation({
+    mutationFn: () => updateFavoriteRestaurants(draft),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['me'] })
+      setIsEditing(false)
+    },
+  })
+
+  const toggle = (id: number) => {
+    setDraft((prev) => (prev.includes(id) ? prev.filter((r) => r !== id) : [...prev, id]))
+  }
+
+  const visibleRestaurants = isEditing
+    ? (restaurants ?? [])
+    : (restaurants ?? []).filter((r) => selectedIds.includes(r.restaurantId))
 
   return (
     <div className="bg-white rounded-[12px] p-5 border border-[#E0E0E0]">
@@ -27,8 +43,12 @@ export function SelectRestaurant() {
           <div className="text-[14px] font-bold">자주 가는 식당</div>
           <button
             type="button"
-            onClick={() => setIsEditing((v) => !v)}
-            className="cursor-pointer flex items-center gap-1"
+            onClick={() => {
+              if (isEditing) save()
+              else startEdit()
+            }}
+            disabled={isPending}
+            className="cursor-pointer flex items-center gap-1 disabled:opacity-50"
           >
             <PencilLine size={12} className="text-[#E31E2D]" />
             <div className="text-[12px] font-regular text-[#E31E2D]">
@@ -38,22 +58,19 @@ export function SelectRestaurant() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          {visibleItems.map((label) => {
-            const enabled = selected[label]
-
+          {visibleRestaurants.map((r) => {
+            const isSelected = selectedIds.includes(r.restaurantId)
             const activeStyle =
-              isEditing && enabled ? 'bg-[#E31E2D] text-white' : 'bg-[#F0F0F0] text-[#606060]'
+              isEditing && isSelected ? 'bg-[#E31E2D] text-white' : 'bg-[#F0F0F0] text-[#606060]'
 
             return (
               <button
-                key={label}
+                key={r.restaurantId}
                 type="button"
-                onClick={() => toggleRestaurant(label)}
-                className={`flex items-center justify-center rounded-[20px] px-4 py-2 text-[12px] font-semibold ${activeStyle} ${
-                  isEditing ? 'cursor-pointer' : 'cursor-default'
-                }`}
+                onClick={() => isEditing && toggle(r.restaurantId)}
+                className={`flex items-center justify-center rounded-[20px] px-4 py-2 text-[12px] font-semibold ${activeStyle} ${isEditing ? 'cursor-pointer' : 'cursor-default'}`}
               >
-                {label}
+                {r.name}
               </button>
             )
           })}

@@ -1,6 +1,10 @@
 import { User, Settings } from 'lucide-react'
+import { useQuery } from '@tanstack/react-query'
+import { getMyPage } from '@/apis/me'
 
 export function ProfileCard() {
+  const { data } = useQuery({ queryKey: ['me'], queryFn: getMyPage })
+
   return (
     <div className="bg-[#E31E2D] rounded-[12px] p-5">
       <div className="flex items-center justify-between">
@@ -11,8 +15,8 @@ export function ProfileCard() {
 
           <div className="flex flex-col">
             <p className="text-[12px] font-regular text-white">경북대학교 학생</p>
-            <p className="text-[20px] font-bold text-white">호반우</p>
-            <p className="text-[12px] font-regular text-white">컴퓨터학부 / 2학년</p>
+            <p className="text-[20px] font-bold text-white">{data?.nickname ?? '-'}</p>
+            <p className="text-[12px] font-regular text-white">{data?.department ?? '-'}</p>
           </div>
         </div>
 
@@ -25,17 +29,18 @@ export function ProfileCard() {
 
       <div className="flex items-center justify-between px-5">
         <div className="flex flex-col items-center">
-          <p className="text-[24px] font-bold text-white">5</p>
+          <p className="text-[24px] font-bold text-white">{data?.reviewCount ?? 0}</p>
           <p className="text-[12px] font-regular text-white">작성리뷰</p>
         </div>
 
         <div className="flex flex-col items-center">
-          <p className="text-[24px] font-bold text-white">5</p>
-          <p className="text-[12px] font-regular text-white">작성리뷰</p>
+          <p className="text-[24px] font-bold text-white">{data?.helpfulReceivedCount ?? 0}</p>
+          <p className="text-[12px] font-regular text-white">도움됐어요</p>
         </div>
+
         <div className="flex flex-col items-center">
-          <p className="text-[24px] font-bold text-white">5</p>
-          <p className="text-[12px] font-regular text-white">작성리뷰</p>
+          <p className="text-[24px] font-bold text-white">{data?.activeEventCount ?? 0}</p>
+          <p className="text-[12px] font-regular text-white">진행이벤트</p>
         </div>
       </div>
     </div>

@@ -15,11 +15,12 @@ import type { ApiResponse, TokenResponse } from './types'
 
 // ── Access Token 저장소 ────────────────────────────────────────────────────────
 
-let accessToken: string | null = null
+const TOKEN_KEY = 'access_token'
 
-export const getAccessToken = () => accessToken
+export const getAccessToken = () => sessionStorage.getItem(TOKEN_KEY)
 export const setAccessToken = (token: string | null) => {
-  accessToken = token
+  if (token) sessionStorage.setItem(TOKEN_KEY, token)
+  else sessionStorage.removeItem(TOKEN_KEY)
 }
 
 // ── Axios 인스턴스 ─────────────────────────────────────────────────────────────
@@ -36,8 +37,9 @@ const http = axios.create({ baseURL: BASE_URL, withCredentials: true, timeout: T
 // ── Request Interceptor: Access Token 주입 ─────────────────────────────────────
 
 http.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  if (accessToken) {
-    config.headers.Authorization = `Bearer ${accessToken}`
+  const token = getAccessToken()
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
   }
   return config
 })
@@ -84,6 +86,9 @@ http.interceptors.response.use(
       } catch {
         processQueue(null)
         setAccessToken(null)
+        const { useAuthStore } = await import('../store/authStore')
+        useAuthStore.getState().clearAuth()
+        window.location.href = '/login'
         throw new ApiError('AUTH_EXPIRED', '로그인이 만료되었습니다.', 401)
       } finally {
         isRefreshing = false
