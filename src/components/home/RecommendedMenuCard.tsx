@@ -84,9 +84,7 @@ export default function RecommendedMenuCard({ refreshRef }: Props) {
       setPendingInfo(null)
     },
     onSuccess: (data) => {
-      const prev = recsRef.current
-      const exists = prev.some((r) => r.menuId === data.menuId)
-      const next = exists ? prev : [...prev, data]
+      const next = [...recsRef.current, data]
       recsRef.current = next
       setRecs(next)
       startOverlayTimer(
