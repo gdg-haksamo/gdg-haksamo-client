@@ -299,7 +299,7 @@ export interface TodayRecommendationResponse {
   date: string
   meal: MealTime
   refreshCount: number
-  refreshRemaining: number
+  totalCount: number
 }
 
 // ── User ──────────────────────────────────────────────────────────────────────
