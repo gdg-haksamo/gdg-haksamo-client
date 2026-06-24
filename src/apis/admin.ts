@@ -1,12 +1,13 @@
 import { httpDelete, httpGet, httpPatch, httpPost, httpPut } from './http'
 import { ENDPOINTS } from './endpoints'
 import type {
-  AdminMenuResponse,
   AdminUserListResponse,
   CreateMenuRequest,
   CreateRestaurantAdminRequest,
   EventRequest,
   EventResponse,
+  ManagedMenuResponse,
+  MenuAdminResponse,
   ResetPasswordRequest,
   UpdateMenuRequest,
   UpdateUserRoleRequest,
@@ -44,15 +45,18 @@ export const triggerCrawl = () => httpPost(ENDPOINTS.ADMIN.CRAWL)
 
 // ── Menu Management ───────────────────────────────────────────────────────────
 
-export const getAdminMenus = () => httpGet<AdminMenuResponse[]>(ENDPOINTS.ADMIN.MENUS)
+export const getAdminMenus = (restaurantId?: number) =>
+  httpGet<ManagedMenuResponse[]>(ENDPOINTS.ADMIN.MENUS_MANAGE, {
+    params: restaurantId ? { restaurantId } : undefined,
+  })
 
 export const createAdminMenu = (data: CreateMenuRequest) =>
-  httpPost<AdminMenuResponse>(ENDPOINTS.ADMIN.MENUS, data)
+  httpPost<MenuAdminResponse>(ENDPOINTS.MENUS.LIST, data)
 
 export const updateAdminMenu = (menuId: number, data: UpdateMenuRequest) =>
-  httpPut<AdminMenuResponse>(ENDPOINTS.ADMIN.MENU(menuId), data)
+  httpPatch<MenuAdminResponse>(ENDPOINTS.MENUS.DETAIL(menuId), data)
 
-export const deleteAdminMenu = (menuId: number) => httpDelete(ENDPOINTS.ADMIN.MENU(menuId))
+export const deleteAdminMenu = (menuId: number) => httpDelete(ENDPOINTS.MENUS.DETAIL(menuId))
 
-export const toggleSoldOut = (menuId: number, soldOut: boolean) =>
-  httpPatch(ENDPOINTS.ADMIN.MENU_SOLD_OUT(menuId), { soldOut })
+export const toggleSoldOut = (scheduleId: number) =>
+  httpPatch(ENDPOINTS.ADMIN.MENU_SOLD_OUT(scheduleId))
