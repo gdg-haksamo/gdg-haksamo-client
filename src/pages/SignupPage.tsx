@@ -6,10 +6,16 @@ import { sendCode, verifyCode, signUp, login } from '@/apis/auth'
 import { setAccessToken } from '@/apis/http'
 import { useAuthStore } from '@/store/authStore'
 import { Footer } from '@/components/layouts/Footer'
+import type { KeywordCode } from '@/apis/types'
 
-// ── 데이터 ──────────────────────────────────────────────────────────────────
-
-const RESTAURANTS = ['공식당', '복지관', '정보센터', '카페테리아 첨성']
+const RESTAURANTS = [
+  { restaurantId: 1, name: '정보센터' },
+  { restaurantId: 2, name: '복지관' },
+  { restaurantId: 3, name: '카페테리아 첨성' },
+  { restaurantId: 4, name: '글로벌플라자' },
+  { restaurantId: 5, name: '공식당 학생식당' },
+  { restaurantId: 6, name: '공식당 교직원식당' },
+]
 
 const KEYWORD_GROUPS = [
   {
@@ -138,7 +144,7 @@ export default function SignupPage() {
   const [nickname, setNickname] = useState('')
   const [password, setPassword] = useState('')
   const [department, setDepartment] = useState('')
-  const [selectedRestaurants, setSelectedRestaurants] = useState<string[]>([])
+  const [selectedRestaurantIds, setSelectedRestaurantIds] = useState<number[]>([])
 
   // Step 3
   const [selectedKeywords, setSelectedKeywords] = useState<string[]>([])
@@ -183,7 +189,14 @@ export default function SignupPage() {
 
   const signupMutation = useMutation({
     mutationFn: async () => {
-      await signUp({ email, password, nickname, department: department || undefined })
+      await signUp({
+        email,
+        password,
+        nickname,
+        department: department || undefined,
+        restaurantIds: selectedRestaurantIds.length > 0 ? selectedRestaurantIds : undefined,
+        keywords: selectedKeywords.length > 0 ? (selectedKeywords as KeywordCode[]) : undefined,
+      })
       const { accessToken } = await login({ email, password })
       setAccessToken(accessToken)
     },
@@ -193,9 +206,9 @@ export default function SignupPage() {
     },
   })
 
-  const toggleRestaurant = (name: string) => {
-    setSelectedRestaurants((prev) =>
-      prev.includes(name) ? prev.filter((r) => r !== name) : [...prev, name],
+  const toggleRestaurant = (id: number) => {
+    setSelectedRestaurantIds((prev) =>
+      prev.includes(id) ? prev.filter((r) => r !== id) : [...prev, id],
     )
   }
 
@@ -341,10 +354,10 @@ export default function SignupPage() {
                   <div className="flex flex-wrap gap-2">
                     {RESTAURANTS.map((r) => (
                       <Chip
-                        key={r}
-                        label={r}
-                        selected={selectedRestaurants.includes(r)}
-                        onToggle={() => toggleRestaurant(r)}
+                        key={r.restaurantId}
+                        label={r.name}
+                        selected={selectedRestaurantIds.includes(r.restaurantId)}
+                        onToggle={() => toggleRestaurant(r.restaurantId)}
                       />
                     ))}
                   </div>
