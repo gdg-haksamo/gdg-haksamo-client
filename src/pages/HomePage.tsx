@@ -13,11 +13,12 @@ import { MOCK_RECOMMENDED_MENUS } from '@/mocks/home'
 const PULL_THRESHOLD = 70
 const MAX_PULL = 90
 
-function getCurrentMealType() {
+function getCurrentMealType(): string | null {
   const hour = new Date().getHours()
+  if (hour < 9) return '아침'
   if (hour < 14) return '중식'
   if (hour < 19) return '저녁'
-  return '아침'
+  return null
 }
 
 function toDateString(date: Date): string {
