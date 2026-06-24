@@ -57,7 +57,11 @@ export default function NoticePage() {
       <SegmentTabMenu tabs={[...TABS]} activeTab={activeTab} onChange={setActiveTab} />
 
       <div className="mt-4 flex flex-col gap-3">
-        {isLoading && <p className="py-8 text-center text-[14px] text-[#a0a0a0]">불러오는 중...</p>}
+        {isLoading && (
+          <div className="flex justify-center py-8">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#e31e2d] border-t-transparent" />
+          </div>
+        )}
         {isError && (
           <p className="py-8 text-center text-[14px] text-[#e31e2d]">
             불러오기에 실패했습니다. 다시 시도해주세요.
