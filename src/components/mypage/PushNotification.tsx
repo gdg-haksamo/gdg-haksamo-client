@@ -1,5 +1,8 @@
 import { useState } from 'react'
 import { Gift, Moon, Sun, Utensils, type LucideIcon } from 'lucide-react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { getMyPage, updateNotificationSettings } from '@/apis/me'
+import type { NotificationSettingsUpdateRequest } from '@/apis/types'
 
 type NotificationId = 'morning' | 'lunch' | 'dinner' | 'event'
 
@@ -11,37 +14,17 @@ type NotificationItem = {
 }
 
 const NOTIFICATIONS: NotificationItem[] = [
-  {
-    id: 'morning',
-    title: '아침 알림',
-    subtitle: '07:30 | 추천 메뉴 알림',
-    icon: Sun,
-  },
-  {
-    id: 'lunch',
-    title: '점심 알림',
-    subtitle: '11:30 | 추천 메뉴 알림',
-    icon: Utensils,
-  },
-  {
-    id: 'dinner',
-    title: '저녁 알림',
-    subtitle: '17:30 | 추천 메뉴 알림',
-    icon: Moon,
-  },
-  {
-    id: 'event',
-    title: '이벤트/공지 알림',
-    subtitle: '새 이벤트 등록 시',
-    icon: Gift,
-  },
+  { id: 'morning', title: '아침 알림', subtitle: '07:30 | 추천 메뉴 알림', icon: Sun },
+  { id: 'lunch', title: '점심 알림', subtitle: '11:30 | 추천 메뉴 알림', icon: Utensils },
+  { id: 'dinner', title: '저녁 알림', subtitle: '17:30 | 추천 메뉴 알림', icon: Moon },
+  { id: 'event', title: '이벤트/공지 알림', subtitle: '새 이벤트 등록 시', icon: Gift },
 ]
 
-const INITIAL_SETTINGS: Record<NotificationId, boolean> = {
-  morning: true,
-  lunch: true,
-  dinner: true,
-  event: true,
+const API_KEY: Record<NotificationId, keyof NotificationSettingsUpdateRequest> = {
+  morning: 'breakfast',
+  lunch: 'lunch',
+  dinner: 'dinner',
+  event: 'event',
 }
 
 function ToggleSwitch({
@@ -74,25 +57,45 @@ function ToggleSwitch({
 }
 
 export function PushNotification() {
-  const [settings, setSettings] = useState(INITIAL_SETTINGS)
+  const queryClient = useQueryClient()
+  const [overrides, setOverrides] = useState<Partial<Record<NotificationId, boolean>>>({})
+
+  const { data: myData } = useQuery({ queryKey: ['me'], queryFn: getMyPage })
+
+  const serverSettings: Record<NotificationId, boolean> = {
+    morning: myData?.notificationSettings?.breakfast ?? true,
+    lunch: myData?.notificationSettings?.lunch ?? true,
+    dinner: myData?.notificationSettings?.dinner ?? true,
+    event: myData?.notificationSettings?.event ?? true,
+  }
+  const settings = { ...serverSettings, ...overrides }
+
+  const { mutate: saveSettings } = useMutation({
+    mutationFn: updateNotificationSettings,
+    onSuccess: () => {
+      setOverrides({})
+      queryClient.invalidateQueries({ queryKey: ['me'] })
+    },
+  })
 
   const allEnabled = Object.values(settings).every(Boolean)
 
   const handleMasterToggle = () => {
-    const nextValue = !allEnabled
-    setSettings({
-      morning: nextValue,
-      lunch: nextValue,
-      dinner: nextValue,
-      event: nextValue,
+    const next = !allEnabled
+    setOverrides({ morning: next, lunch: next, dinner: next, event: next })
+    saveSettings({
+      pushNotificationEnabled: next,
+      breakfast: next,
+      lunch: next,
+      dinner: next,
+      event: next,
     })
   }
 
   const handleItemToggle = (id: NotificationId) => {
-    setSettings((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }))
+    const next = !settings[id]
+    setOverrides((prev) => ({ ...prev, [id]: next }))
+    saveSettings({ [API_KEY[id]]: next })
   }
 
   return (
