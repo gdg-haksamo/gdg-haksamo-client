@@ -129,6 +129,20 @@ export default function HomePage() {
     }
   }, [pullHeight])
 
+  // 최초 진입 시 pull 힌트 애니메이션 (0→55→0)
+  useEffect(() => {
+    const t1 = setTimeout(() => {
+      animate(pullHeight, 55, { duration: 0.45, ease: [0.2, 0, 0.8, 1] })
+    }, 600)
+    const t2 = setTimeout(() => {
+      animate(pullHeight, 0, { type: 'spring', stiffness: 280, damping: 24 })
+    }, 1200)
+    return () => {
+      clearTimeout(t1)
+      clearTimeout(t2)
+    }
+  }, [pullHeight])
+
   useEffect(() => {
     if (!isRefreshing) return
     const timer = setTimeout(() => {
