@@ -1,14 +1,16 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { animate, motion, useMotionValue, useTransform } from 'framer-motion'
 import { RefreshCw } from 'lucide-react'
-import { useQuery } from '@tanstack/react-query'
+import { useQueries, useQuery } from '@tanstack/react-query'
 import CafeteriaTabMenu from '@/components/home/CafeteriaTabMenu'
 import MealCard from '@/components/home/MealCard'
 import RecommendedMenuCard from '@/components/home/RecommendedMenuCard'
 import type { MealMenuItemType } from '@/components/home/MealMenuItem'
+import { getAccessToken } from '@/apis/http'
 import { getMenus } from '@/apis/modules/menus'
-import type { MenuResponse } from '@/apis/types'
-import { MOCK_RECOMMENDED_MENUS } from '@/mocks/home'
+import { getRestaurants, getRestaurantMenus } from '@/apis/modules/restaurants'
+import type { MenuResponse, RestaurantMenuResponse } from '@/apis/types'
+import { MOCK_RECOMMENDED_MENUS, type RecommendedMenuType } from '@/mocks/home'
 
 const PULL_THRESHOLD = 70
 const MAX_PULL = 90
@@ -25,26 +27,89 @@ function toDateString(date: Date): string {
   return date.toISOString().split('T')[0]
 }
 
-const toMenuItem = (menu: MenuResponse): MealMenuItemType => ({
-  name: menu.menuName,
-  rating: menu.averageRating ?? 0,
-  price: menu.price,
-  soldOut: menu.soldOut,
-})
-
 const matchRestaurant = (menuRestaurant: string, tabName: string) => {
   const a = menuRestaurant.trim()
   const b = tabName.trim()
   return a === b || a.includes(b) || b.includes(a)
 }
 
+const matchMenuName = (menuName: string, searchName: string) => {
+  const a = menuName.trim()
+  const b = searchName.trim()
+  return a === b || a.includes(b) || b.includes(a)
+}
+
+function findMenuId(catalogMenus: RestaurantMenuResponse[], menuName: string): number | undefined {
+  const exact = catalogMenus.find((m) => m.name === menuName)
+  if (exact) return exact.menuId
+
+  const partialMatches = catalogMenus
+    .filter((m) => menuName.includes(m.name) || m.name.includes(menuName))
+    .sort((a, b) => b.name.length - a.name.length)
+
+  return partialMatches[0]?.menuId
+}
+
+function resolveRecommendedMenuId(
+  menu: RecommendedMenuType,
+  todayMenus: MenuResponse[],
+  allCatalogs: RestaurantMenuResponse[][],
+): number | undefined {
+  const todayMatch = todayMenus.find(
+    (m) => matchRestaurant(m.restaurant, menu.location) && matchMenuName(m.menuName, menu.name),
+  )
+  const menuNameToLookup = todayMatch?.menuName ?? menu.name
+
+  for (const catalog of allCatalogs) {
+    const id = findMenuId(catalog, menuNameToLookup)
+    if (id) return id
+  }
+
+  return undefined
+}
+
+function resolveMealMenuId(
+  menuName: string,
+  cafeteriaName: string,
+  restaurants: { restaurantId: number; name: string }[] | undefined,
+  menuQueries: { data?: RestaurantMenuResponse[] }[],
+): number | undefined {
+  const restaurantIndex =
+    restaurants?.findIndex((r) => matchRestaurant(r.name, cafeteriaName)) ?? -1
+  const catalog = restaurantIndex >= 0 ? (menuQueries[restaurantIndex]?.data ?? []) : []
+  const id = findMenuId(catalog, menuName)
+  if (id) return id
+
+  for (const query of menuQueries) {
+    const fallbackId = findMenuId(query.data ?? [], menuName)
+    if (fallbackId) return fallbackId
+  }
+
+  return undefined
+}
+
 export default function HomePage() {
   const currentMeal = getCurrentMealType()
   const today = toDateString(new Date())
+  const hasToken = !!getAccessToken()
 
   const { data } = useQuery({
     queryKey: ['menus', today],
     queryFn: () => getMenus(today),
+  })
+
+  const { data: restaurants } = useQuery({
+    queryKey: ['restaurants'],
+    queryFn: getRestaurants,
+    enabled: hasToken,
+  })
+
+  const menuQueries = useQueries({
+    queries: (restaurants ?? []).map((r) => ({
+      queryKey: ['restaurant-menus', r.restaurantId],
+      queryFn: () => getRestaurantMenus(r.restaurantId),
+      enabled: hasToken,
+    })),
   })
 
   const [menuIndex, setMenuIndex] = useState(0)
@@ -54,9 +119,37 @@ export default function HomePage() {
   const filterMenus = (menus: MenuResponse[]) =>
     menus.filter((m) => matchRestaurant(m.restaurant, selectedCafeteriaName))
 
-  const breakfast = filterMenus(data?.breakfast.menus ?? []).map(toMenuItem)
-  const lunch = filterMenus(data?.lunch.menus ?? []).map(toMenuItem)
-  const dinner = filterMenus(data?.dinner.menus ?? []).map(toMenuItem)
+  const mapToMenuItems = (menus: MenuResponse[]): MealMenuItemType[] =>
+    menus.map((menu) => ({
+      name: menu.menuName,
+      rating: menu.averageRating ?? 0,
+      price: menu.price,
+      soldOut: menu.soldOut,
+      menuId: resolveMealMenuId(menu.menuName, selectedCafeteriaName, restaurants, menuQueries),
+    }))
+
+  const breakfast = mapToMenuItems(filterMenus(data?.breakfast.menus ?? []))
+  const lunch = mapToMenuItems(filterMenus(data?.lunch.menus ?? []))
+  const dinner = mapToMenuItems(filterMenus(data?.dinner.menus ?? []))
+
+  const todayMenus = useMemo<MenuResponse[]>(
+    () => [
+      ...(data?.breakfast.menus ?? []),
+      ...(data?.lunch.menus ?? []),
+      ...(data?.dinner.menus ?? []),
+    ],
+    [data],
+  )
+
+  const allCatalogs = useMemo(
+    () => menuQueries.map((q) => q.data ?? []).filter((catalog) => catalog.length > 0),
+    [menuQueries],
+  )
+
+  const recommendedMenu = MOCK_RECOMMENDED_MENUS[menuIndex]
+  const recommendedMenuId = recommendedMenu
+    ? resolveRecommendedMenuId(recommendedMenu, todayMenus, allCatalogs)
+    : undefined
 
   const containerRef = useRef<HTMLDivElement>(null)
   const isRefreshingRef = useRef(false)
@@ -176,7 +269,11 @@ export default function HomePage() {
       </motion.div>
 
       <div className="flex flex-col gap-4">
-        <RecommendedMenuCard menuIndex={menuIndex} isRefreshing={isRefreshing} />
+        <RecommendedMenuCard
+          menuIndex={menuIndex}
+          isRefreshing={isRefreshing}
+          menuId={recommendedMenuId}
+        />
         <CafeteriaTabMenu onChange={setSelectedCafeteriaName} />
         <div className="flex flex-col gap-3">
           <MealCard mealType="아침" items={breakfast} defaultOpen={currentMeal === '아침'} />

@@ -70,7 +70,7 @@ export default function CafeteriaBottomSheet({ cafeteria, onClose }: Props) {
                     <button
                       key={`${menu.menuId ?? menu.name}-${index}`}
                       type="button"
-                      className="w-full text-left disabled:cursor-default"
+                      className="w-full cursor-pointer text-left disabled:cursor-default"
                       disabled={!menu.menuId}
                       onClick={() => {
                         if (!menu.menuId) return
