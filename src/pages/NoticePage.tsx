@@ -1,30 +1,61 @@
 import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import SegmentTabMenu from '@/components/notice/SegmentTabMenu'
 import NoticeCard from '@/components/notice/NoticeCard'
-import { MOCK_NOTICE_ITEMS } from '@/mocks/notice'
-import type { NoticeType } from '@/mocks/notice'
+import { getEvents } from '@/apis/events'
+import type { NoticeItem } from '@/mocks/notice'
+import hobanWoo from '@/assets/hoban-woo.svg'
 
 const TABS = ['전체', '공지사항', '이벤트'] as const
 type Tab = (typeof TABS)[number]
 
-const TAB_TYPE_MAP: Record<Tab, NoticeType | null> = {
-  전체: null,
-  공지사항: 'notice',
-  이벤트: 'event',
+function formatKoreanDate(dateStr: string): string {
+  const [year, month, day] = dateStr.split('-')
+  return `${year}년 ${month}월 ${day}일`
 }
 
 export default function NoticePage() {
   const [activeTab, setActiveTab] = useState<Tab>('전체')
 
-  const filteredItems = MOCK_NOTICE_ITEMS.filter((item) => {
-    const type = TAB_TYPE_MAP[activeTab]
-    return type === null || item.type === type
+  const { data: events = [] } = useQuery({
+    queryKey: ['events'],
+    queryFn: getEvents,
+  })
+
+  const items: NoticeItem[] = events.map((e) => {
+    const isEvent = e.startDate != null || e.endDate != null
+    return {
+      id: e.eventId,
+      type: isEvent ? 'event' : 'notice',
+      tags: isEvent ? ['이벤트'] : ['공지'],
+      title: e.title,
+      date: e.createdAt.slice(0, 10),
+      image: e.imageUrl ?? undefined,
+      description: e.content ?? undefined,
+      startDate: e.startDate ? formatKoreanDate(e.startDate) : undefined,
+      endDate: e.endDate ? formatKoreanDate(e.endDate) : undefined,
+    }
+  })
+
+  const filteredItems = items.filter((item) => {
+    if (activeTab === '전체') return true
+    if (activeTab === '공지사항') return item.type === 'notice'
+    return item.type === 'event'
   })
 
   return (
-    <div className="flex flex-col gap-4 px-5 py-4">
+    <div className="flex flex-col px-5 py-4">
+      <div className="mb-2 flex items-center gap-3">
+        <img src={hobanWoo} alt="호반우" className="h-16 w-auto" />
+        <p className="text-[18px] font-bold leading-snug text-black">현재 진행 중인 이벤트</p>
+      </div>
+
       <SegmentTabMenu tabs={[...TABS]} activeTab={activeTab} onChange={setActiveTab} />
-      <div className="flex flex-col gap-3">
+
+      <div className="mt-4 flex flex-col gap-3">
+        {filteredItems.length === 0 && (
+          <p className="py-8 text-center text-[14px] text-[#a0a0a0]">등록된 이벤트가 없습니다</p>
+        )}
         {filteredItems.map((item) => (
           <NoticeCard key={item.id} item={item} />
         ))}
