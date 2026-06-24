@@ -29,6 +29,7 @@ const toMenuItem = (menu: MenuResponse): MealMenuItemType => ({
   name: menu.menuName,
   rating: menu.averageRating ?? 0,
   price: menu.price,
+  soldOut: menu.soldOut,
 })
 
 const matchRestaurant = (menuRestaurant: string, tabName: string) => {
