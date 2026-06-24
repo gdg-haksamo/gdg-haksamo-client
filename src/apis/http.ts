@@ -54,7 +54,7 @@ http.interceptors.response.use(
               originalRequest.headers.Authorization = `Bearer ${token}`
               resolve(http(originalRequest))
             } else {
-              reject(error)
+              reject(new ApiError('AUTH_EXPIRED', '로그인이 만료되었습니다.', 401))
             }
           })
         })
