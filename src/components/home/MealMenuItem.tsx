@@ -2,7 +2,7 @@ import { Star } from 'lucide-react'
 
 export type MealMenuItemType = {
   name: string
-  rating: number
+  rating?: number
   price: number
   isPopular?: boolean
 }
@@ -26,10 +26,12 @@ export default function MealMenuItem({
         )}
       </div>
       <div className="flex items-center gap-4">
-        <div className="flex items-center gap-1">
-          <Star size={13} className="fill-[#FFBB00] text-[#FFBB00]" />
-          <span className="text-[12px] font-medium text-[#808080]">{rating.toFixed(1)}</span>
-        </div>
+        {rating != null && (
+          <div className="flex items-center gap-1">
+            <Star size={13} className="fill-[#FFBB00] text-[#FFBB00]" />
+            <span className="text-[12px] font-medium text-[#808080]">{rating.toFixed(1)}</span>
+          </div>
+        )}
         <span className="min-w-[52px] text-right text-[13px] font-semibold text-[#333]">
           {price.toLocaleString()}원
         </span>

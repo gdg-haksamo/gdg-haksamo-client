@@ -1,7 +1,8 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { X, MapPin } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import MealMenuItem from '@/components/home/MealMenuItem'
-import type { CafeteriaInfo } from '@/mocks/search'
+import type { CafeteriaInfo } from './types'
 
 type Props = {
   cafeteria: CafeteriaInfo | null
@@ -9,6 +10,8 @@ type Props = {
 }
 
 export default function CafeteriaBottomSheet({ cafeteria, onClose }: Props) {
+  const navigate = useNavigate()
+
   return (
     <AnimatePresence>
       {cafeteria && (
@@ -45,8 +48,23 @@ export default function CafeteriaBottomSheet({ cafeteria, onClose }: Props) {
             </div>
 
             <div className="overflow-hidden rounded-[12px] border border-[#f0f0f0]">
-              {cafeteria.menus.map((menu, i) => (
-                <MealMenuItem key={i} {...menu} />
+              {cafeteria.menus.map((menu) => (
+                <button
+                  key={menu.menuId}
+                  type="button"
+                  className="w-full text-left"
+                  onClick={() => {
+                    onClose()
+                    navigate(`/info/${menu.menuId}`)
+                  }}
+                >
+                  <MealMenuItem
+                    name={menu.name}
+                    price={menu.price}
+                    rating={menu.rating}
+                    isPopular={menu.isPopular}
+                  />
+                </button>
               ))}
             </div>
           </motion.div>
