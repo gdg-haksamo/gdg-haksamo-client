@@ -19,7 +19,14 @@ function App() {
       <Route path="/admin" element={<AdminPage />} />
       <Route element={<DefaultLayout />}>
         <Route path="/" element={<HomePage />} />
-        <Route path="/search" element={<SearchPage />} />
+        <Route
+          path="/search"
+          element={
+            <PrivateRoute>
+              <SearchPage />
+            </PrivateRoute>
+          }
+        />
         <Route path="/info/:menuId" element={<InfoPage />} />
         <Route
           path="/review"

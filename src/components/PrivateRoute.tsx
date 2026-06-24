@@ -7,7 +7,6 @@ export default function PrivateRoute({ children }: { children: React.ReactNode }
   if (!token) {
     return (
       <div className="relative flex flex-1 flex-col">
-        {children}
         <RequireLoginPage />
       </div>
     )
