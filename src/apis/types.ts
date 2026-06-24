@@ -1,0 +1,229 @@
+export interface ApiResponse<T = void> {
+  success: boolean
+  code?: string
+  message?: string
+  data: T
+}
+
+// ── Auth ──────────────────────────────────────────────────────────────────────
+
+export interface SendCodeRequest {
+  email: string
+}
+
+export interface VerifyCodeRequest {
+  email: string
+  code: string
+}
+
+export interface SignUpRequest {
+  email: string
+  password: string
+  nickname: string
+  department?: string
+  grade?: number
+}
+
+export interface SignUpResponse {
+  userId: number
+  email: string
+  nickname: string
+}
+
+export interface LoginRequest {
+  email: string
+  password: string
+}
+
+export interface TokenResponse {
+  accessToken: string
+  accessTokenExpiresIn: number
+}
+
+// ── Menu ──────────────────────────────────────────────────────────────────────
+
+export interface MenuResponse {
+  menuId: number
+  restaurant: string
+  menuName: string
+  price: number
+  averageRating: number | null
+}
+
+export interface MealMenusResponse {
+  count: number
+  menus: MenuResponse[]
+}
+
+export interface MenusByMealTimeResponse {
+  breakfast: MealMenusResponse
+  lunch: MealMenusResponse
+  dinner: MealMenusResponse
+}
+
+export interface NutritionInfo {
+  calories: number | null
+  protein: number | null
+  carb: number | null
+  fat: number | null
+}
+
+export interface RecentReview {
+  userId: number
+  createdAt: string
+  rating: number
+  content: string | null
+}
+
+export interface MenuDetailResponse {
+  menuName: string
+  price: number
+  restaurant: string
+  operatingTime: string | null
+  description: string | null
+  imageUrl: string | null
+  nutrition: NutritionInfo
+  averageRating: number | null
+  reviewCount: number
+  recentReviews: RecentReview[]
+}
+
+// ── Review ────────────────────────────────────────────────────────────────────
+
+export interface ReviewRequest {
+  rating: number
+  content?: string
+}
+
+export interface ReviewResponse {
+  reviewId: number
+  userId: number
+  rating: number
+  content: string | null
+  createdAt: string
+  helpfulCount: number
+}
+
+export interface RatingDistributionResponse {
+  totalCount: number
+  distribution: Record<string, number>
+}
+
+// ── Restaurant ────────────────────────────────────────────────────────────────
+
+export interface RestaurantResponse {
+  restaurantId: number
+  name: string
+}
+
+export interface RestaurantMenuResponse {
+  menuId: number
+  name: string
+  price: number
+}
+
+// ── MyPage ────────────────────────────────────────────────────────────────────
+
+export interface NotificationSettingsResponse {
+  pushNotificationEnabled: boolean
+  breakfast: boolean
+  lunch: boolean
+  dinner: boolean
+  event: boolean
+}
+
+export interface MyPageResponse {
+  nickname: string
+  department: string
+  grade: number
+  reviewCount: number
+  helpfulReceivedCount: number
+  activeEventCount: number | null
+  favoriteRestaurants: RestaurantResponse[]
+  preferenceKeywords: string[]
+  notificationSettings: NotificationSettingsResponse
+}
+
+export interface FavoriteRestaurantsUpdateRequest {
+  restaurantIds: number[]
+}
+
+export interface PreferencesUpdateRequest {
+  keywords: string[]
+}
+
+export interface NotificationSettingsUpdateRequest {
+  pushNotificationEnabled?: boolean
+  breakfast?: boolean
+  lunch?: boolean
+  dinner?: boolean
+  event?: boolean
+}
+
+export interface PreferenceKeywordResponse {
+  name: string
+  category: string
+  label: string
+}
+
+// ── Event ─────────────────────────────────────────────────────────────────────
+
+export interface EventResponse {
+  eventId: number
+  title: string
+  content: string | null
+  imageUrl: string | null
+  startDate: string | null
+  endDate: string | null
+  createdAt: string
+}
+
+export interface EventRequest {
+  title: string
+  content?: string
+  imageUrl?: string
+  startDate?: string
+  endDate?: string
+}
+
+// ── Admin ─────────────────────────────────────────────────────────────────────
+
+export type UserRole = 'USER' | 'RESTAURANT_ADMIN' | 'SUPER_ADMIN'
+
+export interface AdminUserResponse {
+  userId: number
+  email: string
+  nickname: string
+  role: UserRole
+  managedRestaurantId: number | null
+}
+
+export interface AdminUserListResponse {
+  users: AdminUserResponse[]
+  page: number
+  size: number
+  totalElements: number
+  totalPages: number
+}
+
+export interface CreateRestaurantAdminRequest {
+  email: string
+  password: string
+  nickname: string
+  restaurantId: number
+}
+
+export interface UpdateUserRoleRequest {
+  role: UserRole
+  managedRestaurantId?: number
+}
+
+export interface ResetPasswordRequest {
+  newPassword: string
+}
+
+// ── User ──────────────────────────────────────────────────────────────────────
+
+export interface FcmTokenRequest {
+  fcmToken: string
+}
