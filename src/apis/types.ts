@@ -137,6 +137,7 @@ export interface NotificationSettingsResponse {
 export interface MyPageResponse {
   nickname: string
   department: string
+  role?: UserRole
   reviewCount: number
   helpfulReceivedCount: number
   activeEventCount: number | null
@@ -214,6 +215,23 @@ export interface EventRequest {
 // ── Admin ─────────────────────────────────────────────────────────────────────
 
 export type UserRole = 'USER' | 'RESTAURANT_ADMIN' | 'SUPER_ADMIN'
+
+export interface AdminMenuResponse {
+  menuId: number
+  name: string
+  price: number
+  soldOut: boolean
+}
+
+export interface CreateMenuRequest {
+  name: string
+  price: number
+}
+
+export interface UpdateMenuRequest {
+  name?: string
+  price?: number
+}
 
 export interface AdminUserResponse {
   userId: number

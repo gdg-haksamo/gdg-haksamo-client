@@ -8,12 +8,14 @@ import NoticePage from '@/pages/NoticePage'
 import SearchPage from '@/pages/SearchPage'
 import LoginPage from '@/pages/LoginPage'
 import SignupPage from '@/pages/SignupPage'
+import AdminPage from '@/pages/admin/AdminPage'
 
 function App() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
+      <Route path="/admin" element={<AdminPage />} />
       <Route element={<DefaultLayout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/search" element={<SearchPage />} />

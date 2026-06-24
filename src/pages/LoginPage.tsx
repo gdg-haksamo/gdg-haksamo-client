@@ -19,12 +19,11 @@ export default function LoginPage() {
     mutationFn: async () => {
       const { accessToken } = await login({ email, password })
       setAccessToken(accessToken)
-      const { nickname } = await getMyPage()
-      return nickname
+      return getMyPage()
     },
-    onSuccess: (nickname) => {
-      setAuth(nickname)
-      navigate('/')
+    onSuccess: ({ nickname, role }) => {
+      setAuth(nickname, role)
+      navigate(role === 'SUPER_ADMIN' || role === 'RESTAURANT_ADMIN' ? '/admin' : '/')
     },
   })
 
