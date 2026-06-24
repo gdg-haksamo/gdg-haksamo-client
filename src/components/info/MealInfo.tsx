@@ -11,6 +11,7 @@ export default function MealInfo({
   rating,
   reviewCount,
   aiDescription,
+  soldOut = false,
 }: MealInfoProps) {
   return (
     <div className="flex flex-col gap-5">
@@ -26,7 +27,16 @@ export default function MealInfo({
 
       <div className="flex items-center justify-between px-2">
         <div className="flex flex-col items-start justify-center gap-1">
-          <div className="text-[24px] font-bold text-black">{name}</div>
+          <div className="flex items-center gap-2">
+            <div className={`text-[24px] font-bold text-black ${soldOut ? 'opacity-50' : ''}`}>
+              {name}
+            </div>
+            {soldOut && (
+              <span className="rounded-full bg-[#f0f0f0] px-2.5 py-1 text-[12px] font-bold text-[#a0a0a0]">
+                품절
+              </span>
+            )}
+          </div>
           <div className="flex items-center gap-3">
             <StarRating rating={rating} size={16} />
             <span className="text-[14px] font-bold text-black">{rating.toFixed(1)}</span>
