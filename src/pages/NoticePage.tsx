@@ -27,7 +27,7 @@ export default function NoticePage() {
   })
 
   const items: NoticeItem[] = (events ?? []).map((e) => {
-    const isEvent = e.startDate != null || e.endDate != null
+    const isEvent = e.type === 'EVENT'
     return {
       id: e.eventId,
       type: isEvent ? 'event' : 'notice',
@@ -35,6 +35,7 @@ export default function NoticePage() {
       title: e.title,
       date: e.createdAt.slice(0, 10),
       image: e.imageUrl ?? undefined,
+      url: e.linkUrl ?? undefined,
       description: e.content ?? undefined,
       startDate: e.startDate ? formatKoreanDate(e.startDate) : undefined,
       endDate: e.endDate ? formatKoreanDate(e.endDate) : undefined,

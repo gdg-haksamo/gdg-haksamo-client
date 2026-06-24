@@ -21,6 +21,8 @@ export interface SignUpRequest {
   password: string
   nickname: string
   department?: string
+  restaurantIds?: number[]
+  keywords?: KeywordCode[]
 }
 
 export interface SignUpResponse {
@@ -189,18 +191,22 @@ export interface PreferenceKeywordResponse {
 
 export interface EventResponse {
   eventId: number
+  type: 'EVENT' | 'NOTICE'
   title: string
   content: string | null
   imageUrl: string | null
+  linkUrl: string | null
   startDate: string | null
   endDate: string | null
   createdAt: string
 }
 
 export interface EventRequest {
+  type: 'EVENT' | 'NOTICE'
   title: string
   content?: string
   imageUrl?: string
+  linkUrl?: string
   startDate?: string
   endDate?: string
 }
