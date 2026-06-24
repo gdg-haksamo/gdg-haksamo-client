@@ -11,13 +11,8 @@ type NoticeCardProps = {
 }
 
 function EventCard({ item }: NoticeCardProps) {
-  return (
-    <a
-      href={item.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="block overflow-hidden rounded-2xl bg-white shadow-[0px_6px_16px_0px_rgba(0,0,0,0.14)]"
-    >
+  const inner = (
+    <>
       <div className="h-45 overflow-hidden">
         {item.image ? (
           <img src={item.image} alt={item.title} className="h-full w-full object-cover" />
@@ -58,7 +53,26 @@ function EventCard({ item }: NoticeCardProps) {
           )}
         </div>
       </div>
-    </a>
+    </>
+  )
+
+  if (item.url) {
+    return (
+      <a
+        href={item.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block overflow-hidden rounded-2xl bg-white shadow-[0px_6px_16px_0px_rgba(0,0,0,0.14)]"
+      >
+        {inner}
+      </a>
+    )
+  }
+
+  return (
+    <div className="overflow-hidden rounded-2xl bg-white shadow-[0px_6px_16px_0px_rgba(0,0,0,0.14)]">
+      {inner}
+    </div>
   )
 }
 
@@ -67,13 +81,8 @@ export default function NoticeCard({ item }: NoticeCardProps) {
     return <EventCard item={item} />
   }
 
-  return (
-    <a
-      href={item.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="flex overflow-hidden rounded-xl bg-white shadow-[0px_2px_8px_0px_rgba(0,0,0,0.08)]"
-    >
+  const inner = (
+    <>
       <div className="w-1 shrink-0 bg-[#e0e0e0]" />
       <div className="flex flex-1 items-center justify-between px-4 py-4.5">
         <div className="flex flex-col gap-1">
@@ -92,6 +101,25 @@ export default function NoticeCard({ item }: NoticeCardProps) {
         </div>
         <ChevronRight size={18} className="ml-3 shrink-0 text-[#c0c0c0]" />
       </div>
-    </a>
+    </>
+  )
+
+  if (item.url) {
+    return (
+      <a
+        href={item.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex overflow-hidden rounded-xl bg-white shadow-[0px_2px_8px_0px_rgba(0,0,0,0.08)]"
+      >
+        {inner}
+      </a>
+    )
+  }
+
+  return (
+    <div className="flex overflow-hidden rounded-xl bg-white shadow-[0px_2px_8px_0px_rgba(0,0,0,0.08)]">
+      {inner}
+    </div>
   )
 }

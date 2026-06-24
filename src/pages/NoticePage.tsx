@@ -10,19 +10,23 @@ const TABS = ['전체', '공지사항', '이벤트'] as const
 type Tab = (typeof TABS)[number]
 
 function formatKoreanDate(dateStr: string): string {
-  const [year, month, day] = dateStr.split('-')
+  const [year, month, day] = dateStr.slice(0, 10).split('-')
   return `${year}년 ${month}월 ${day}일`
 }
 
 export default function NoticePage() {
   const [activeTab, setActiveTab] = useState<Tab>('전체')
 
-  const { data: events = [] } = useQuery({
+  const {
+    data: events,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ['events'],
     queryFn: getEvents,
   })
 
-  const items: NoticeItem[] = events.map((e) => {
+  const items: NoticeItem[] = (events ?? []).map((e) => {
     const isEvent = e.startDate != null || e.endDate != null
     return {
       id: e.eventId,
@@ -53,12 +57,18 @@ export default function NoticePage() {
       <SegmentTabMenu tabs={[...TABS]} activeTab={activeTab} onChange={setActiveTab} />
 
       <div className="mt-4 flex flex-col gap-3">
-        {filteredItems.length === 0 && (
+        {isLoading && <p className="py-8 text-center text-[14px] text-[#a0a0a0]">불러오는 중...</p>}
+        {isError && (
+          <p className="py-8 text-center text-[14px] text-[#e31e2d]">
+            불러오기에 실패했습니다. 다시 시도해주세요.
+          </p>
+        )}
+        {!isLoading && !isError && filteredItems.length === 0 && (
           <p className="py-8 text-center text-[14px] text-[#a0a0a0]">등록된 이벤트가 없습니다</p>
         )}
-        {filteredItems.map((item) => (
-          <NoticeCard key={item.id} item={item} />
-        ))}
+        {!isLoading &&
+          !isError &&
+          filteredItems.map((item) => <NoticeCard key={item.id} item={item} />)}
       </div>
     </div>
   )
