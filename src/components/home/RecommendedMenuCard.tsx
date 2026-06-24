@@ -123,6 +123,7 @@ export default function RecommendedMenuCard({ menuIndex, isRefreshing }: Props) 
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -24 }}
                 transition={{ duration: 0.25, ease: 'easeInOut' }}
+                draggable={false}
                 className="absolute right-0 top-0 h-full w-[148px] object-cover"
               />
             </AnimatePresence>

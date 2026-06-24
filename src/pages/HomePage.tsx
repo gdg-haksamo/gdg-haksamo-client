@@ -93,6 +93,7 @@ export default function HomePage() {
 
     const onMouseDown = (e: MouseEvent) => {
       if (main.scrollTop > 0 || isRefreshingRef.current || e.button !== 0) return
+      e.preventDefault() // 텍스트 선택 및 native 드래그 차단
       startY = e.clientY
       pulling = true
     }
