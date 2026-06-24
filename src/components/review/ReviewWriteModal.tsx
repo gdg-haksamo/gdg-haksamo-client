@@ -1,5 +1,8 @@
 import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { Camera, ChevronDown, Star, X } from 'lucide-react'
+import { httpGet } from '@/apis/http'
+import { ENDPOINTS } from '@/apis/endpoints'
 
 export type ReviewWriteFormData = {
   restaurant: string
@@ -17,43 +20,50 @@ type ReviewWriteModalProps = {
 const SELECT_CLASS =
   'h-[40px] w-full appearance-none rounded-[12px] bg-[#F0F0F0] pl-3 pr-10 text-[12px] outline-none'
 
-const MODAL_RESTAURANTS = ['정보센터', '복지관', '첨성'] as const
+const MODAL_RESTAURANTS = [
+  { label: '정보센터', value: '정보센터', id: 1 },
+  { label: '복지관', value: '복지관', id: 2 },
+  { label: '카페테리아 첨성', value: '카페테리아 첨성', id: 3 },
+  { label: '글로벌플라자', value: '글로벌플라자', id: 4 },
+  { label: '공식당 학생식당', value: '공식당 학생식당', id: 5 },
+  { label: '공식당 교직원식당', value: '공식당 교직원식당', id: 6 },
+] as const
 
-const MODAL_MENUS: Record<string, string[]> = {
-  정보센터: ['제육볶음', '순두부찌개'],
-  복지관: ['돈까스', '비빔밥'],
-  첨성: ['김치찌개'],
-}
-
-const MENU_ID_MAP: Record<string, number> = {
-  제육볶음: 110,
-  순두부찌개: 111,
-  돈까스: 112,
-  비빔밥: 113,
-  김치찌개: 114,
+type MenuItem = {
+  menuId: number
+  name: string
 }
 
 export default function ReviewWriteModal({ onClose, onSubmit }: ReviewWriteModalProps) {
-  const [restaurant, setRestaurant] = useState('')
-  const [menuName, setMenuName] = useState('')
+  const [restaurantId, setRestaurantId] = useState('')
+  const [menuId, setMenuId] = useState('')
   const [rating, setRating] = useState(0)
   const [content, setContent] = useState('')
 
-  const menuOptions = restaurant ? (MODAL_MENUS[restaurant] ?? []) : []
-  const isValid = restaurant !== '' && menuName !== '' && rating > 0
+  const { data: menus = [], isLoading: isLoadingMenus } = useQuery({
+    queryKey: ['restaurant-menus', restaurantId],
+    queryFn: () => httpGet<MenuItem[]>(ENDPOINTS.RESTAURANTS.MENUS(Number(restaurantId))),
+    enabled: restaurantId !== '',
+  })
+
+  const isValid = restaurantId !== '' && menuId !== '' && rating > 0
 
   const handleRestaurantChange = (value: string) => {
-    setRestaurant(value)
-    setMenuName('')
+    setRestaurantId(value)
+    setMenuId('')
   }
 
   const handleSubmit = () => {
     if (!isValid) return
 
+    const restaurant = MODAL_RESTAURANTS.find((r) => r.id === Number(restaurantId))
+    const menu = menus.find((m) => m.menuId === Number(menuId))
+    if (!restaurant || !menu) return
+
     onSubmit({
-      restaurant,
-      menuName,
-      menuId: MENU_ID_MAP[menuName] ?? 0,
+      restaurant: restaurant.value,
+      menuName: menu.name,
+      menuId: menu.menuId,
       rating,
       content: content.trim(),
     })
@@ -80,14 +90,14 @@ export default function ReviewWriteModal({ onClose, onSubmit }: ReviewWriteModal
             <label className="text-[14px] font-semibold text-black">식당 선택</label>
             <div className="relative">
               <select
-                value={restaurant}
+                value={restaurantId}
                 onChange={(e) => handleRestaurantChange(e.target.value)}
-                className={`${SELECT_CLASS} ${restaurant ? 'text-black' : 'text-[#A0A0A0]'}`}
+                className={`${SELECT_CLASS} ${restaurantId ? 'text-black' : 'text-[#A0A0A0]'}`}
               >
                 <option value="">식당을 선택하세요</option>
-                {MODAL_RESTAURANTS.map((name) => (
-                  <option key={name} value={name}>
-                    {name}
+                {MODAL_RESTAURANTS.map(({ label, id }) => (
+                  <option key={id} value={id}>
+                    {label}
                   </option>
                 ))}
               </select>
@@ -102,15 +112,15 @@ export default function ReviewWriteModal({ onClose, onSubmit }: ReviewWriteModal
             <label className="text-[14px] font-semibold text-black">메뉴 선택</label>
             <div className="relative">
               <select
-                value={menuName}
-                onChange={(e) => setMenuName(e.target.value)}
-                disabled={!restaurant}
-                className={`${SELECT_CLASS} ${menuName ? 'text-black' : 'text-[#A0A0A0]'}`}
+                value={menuId}
+                onChange={(e) => setMenuId(e.target.value)}
+                disabled={!restaurantId || isLoadingMenus}
+                className={`${SELECT_CLASS} ${menuId ? 'text-black' : 'text-[#A0A0A0]'}`}
               >
-                <option value="">메뉴를 선택하세요</option>
-                {menuOptions.map((name) => (
-                  <option key={name} value={name}>
-                    {name}
+                <option value="">{isLoadingMenus ? '불러오는 중...' : '메뉴를 선택하세요'}</option>
+                {menus.map((menu) => (
+                  <option key={menu.menuId} value={menu.menuId}>
+                    {menu.name}
                   </option>
                 ))}
               </select>

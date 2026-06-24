@@ -1,21 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import ReviewCard from '@/components/review/ReviewCard'
 import ReviewFilters from '@/components/review/ReviewFilters'
 import ReviewWriteFab from '@/components/review/ReviewWriteFab'
 import ReviewWriteModal, { type ReviewWriteFormData } from '@/components/review/ReviewWriteModal'
 import { tabToRestaurant, type RestaurantTab } from '@/components/review/reviewFilterUtils'
 import { type ReviewSort } from '@/mocks/review'
-import { ApiError } from '@/apis/error'
-import { setAccessToken } from '@/apis/http'
-import { getMenuReviews, createReview, type ReviewResponse } from '@/apis/review'
-import { useAuthStore } from '@/store/authStore'
-
-function isAuthError(err: unknown) {
-  if (!(err instanceof ApiError)) return false
-  const authCodes = ['AUTH_EXPIRED', 'A005']
-  return err.status === 401 || authCodes.includes(err.code) || err.message.includes('로그인')
-}
+import { type ReviewResponse, createReview } from '@/apis/review'
+import { httpGet } from '@/apis/http'
 
 function sortReviews(items: ReviewResponse[], sort: ReviewSort) {
   switch (sort) {
@@ -32,13 +23,7 @@ function sortReviews(items: ReviewResponse[], sort: ReviewSort) {
   }
 }
 
-// 리뷰 페이지에서 보여줄 menuId 목록 (임시 - 나중에 전체 메뉴 API로 교체)
-const MENU_IDS = [110, 111, 112, 113, 114]
-
 export default function ReviewPage() {
-  const navigate = useNavigate()
-  const isLoggedIn = useAuthStore((s) => s.isLoggedIn)
-  const clearAuth = useAuthStore((s) => s.clearAuth)
   const [reviews, setReviews] = useState<ReviewResponse[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isWriteModalOpen, setIsWriteModalOpen] = useState(false)
@@ -46,30 +31,20 @@ export default function ReviewPage() {
   const [query, setQuery] = useState('')
   const [sort, setSort] = useState<ReviewSort>('최신순')
 
-  // 여러 메뉴의 리뷰를 한꺼번에 불러오기
   useEffect(() => {
-    if (!isLoggedIn) return
-
     const fetchAllReviews = async () => {
       setIsLoading(true)
       try {
-        const results = await Promise.all(MENU_IDS.map((id) => getMenuReviews(id)))
-        const allReviews = results.flat()
+        const allReviews = await httpGet<ReviewResponse[]>('/api/reviews')
         setReviews(allReviews)
       } catch (err) {
-        if (isAuthError(err)) {
-          setAccessToken(null)
-          clearAuth()
-          return
-        }
         console.error('리뷰 조회 실패:', err)
       } finally {
         setIsLoading(false)
       }
     }
-
     fetchAllReviews()
-  }, [isLoggedIn, clearAuth])
+  }, [])
 
   const handleReviewSubmit = async (data: ReviewWriteFormData) => {
     try {
@@ -97,26 +72,6 @@ export default function ReviewPage() {
 
     return sortReviews(byQuery, sort)
   }, [activeTab, query, sort, reviews])
-
-  if (!isLoggedIn) {
-    return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-4 p-5">
-        <p className="text-center text-[16px] font-semibold text-black">
-          리뷰를 보려면 로그인이 필요해요
-        </p>
-        <p className="text-center text-[14px] text-[#606060]">
-          로그인 후 리뷰를 확인하고 작성할 수 있어요
-        </p>
-        <button
-          type="button"
-          onClick={() => navigate('/login')}
-          className="mt-2 rounded-[12px] bg-[#E31E2D] px-8 py-3 text-[14px] font-bold text-white"
-        >
-          로그인하기
-        </button>
-      </div>
-    )
-  }
 
   return (
     <>
