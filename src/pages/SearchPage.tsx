@@ -1,31 +1,71 @@
 import { useState, useMemo } from 'react'
 import { Search, X, ChevronRight } from 'lucide-react'
+import { useQueries, useQuery } from '@tanstack/react-query'
 import CampusMap from '@/components/search/CampusMap'
 import CafeteriaBottomSheet from '@/components/search/CafeteriaBottomSheet'
-import { CAFETERIAS } from '@/mocks/search'
-import type { CafeteriaInfo } from '@/mocks/search'
+import type { CafeteriaInfo } from '@/components/search/types'
+import { getRestaurants, getRestaurantMenus } from '@/apis/restaurants'
 import cafeteriaMarker from '@/assets/cafeteria-marker.svg'
+
+const BASE_CAFETERIAS = [
+  { name: '공식당', building: '공대1호관 1층', position: { x: 45.6, y: 62.1 } },
+  { name: '복지관', building: '학생복지관 1층', position: { x: 74.0, y: 53.0 } },
+  { name: '정보센터', building: '종합정보센터 1층', position: { x: 70.1, y: 30.6 } },
+  { name: '카페테리아 첨성', building: '첨성관 1층', position: { x: 76.9, y: 53.5 } },
+] as const
 
 export default function SearchPage() {
   const [query, setQuery] = useState('')
   const [selectedCafeteria, setSelectedCafeteria] = useState<CafeteriaInfo | null>(null)
 
+  const { data: restaurants } = useQuery({
+    queryKey: ['restaurants'],
+    queryFn: getRestaurants,
+  })
+
+  const menuQueries = useQueries({
+    queries: (restaurants ?? []).map((r) => ({
+      queryKey: ['restaurant-menus', r.restaurantId],
+      queryFn: () => getRestaurantMenus(r.restaurantId),
+    })),
+  })
+
+  const cafeterias = useMemo<CafeteriaInfo[]>(() => {
+    return BASE_CAFETERIAS.map((base) => {
+      const apiRestaurant = restaurants?.find((r) => r.name === base.name)
+      const queryIndex = restaurants?.findIndex((r) => r.name === base.name) ?? -1
+      const menusData = queryIndex >= 0 ? menuQueries[queryIndex]?.data : undefined
+
+      return {
+        id: apiRestaurant != null ? String(apiRestaurant.restaurantId) : base.name,
+        name: base.name,
+        building: base.building,
+        position: base.position,
+        menus: (menusData ?? []).map((m) => ({
+          menuId: m.menuId,
+          name: m.name,
+          price: m.price,
+        })),
+      }
+    })
+  }, [restaurants, menuQueries])
+
   const matchedCafeterias = useMemo(() => {
     if (!query.trim()) return []
     const q = query.toLowerCase()
-    return CAFETERIAS.filter(
+    return cafeterias.filter(
       (cafe) =>
         cafe.name.toLowerCase().includes(q) ||
         cafe.menus.some((menu) => menu.name.toLowerCase().includes(q)),
     )
-  }, [query])
+  }, [query, cafeterias])
 
   const highlightedIds = matchedCafeterias.map((c) => c.id)
 
   return (
     <div className="relative flex flex-1 overflow-hidden">
       <CampusMap
-        cafeterias={CAFETERIAS}
+        cafeterias={cafeterias}
         highlightedIds={highlightedIds}
         onMarkerClick={setSelectedCafeteria}
       />
@@ -75,14 +115,16 @@ export default function SearchPage() {
                         <span className="text-[14px] font-bold text-black">{cafe.name}</span>
                         <span className="text-[11px] text-[#606060]">{cafe.building}</span>
                       </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-[13px] font-semibold text-[#333]">
-                          {matchedMenu.name}
-                        </span>
-                        <span className="text-[13px] font-bold text-[#e31e2d]">
-                          {matchedMenu.price.toLocaleString()}원
-                        </span>
-                      </div>
+                      {matchedMenu && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-[13px] font-semibold text-[#333]">
+                            {matchedMenu.name}
+                          </span>
+                          <span className="text-[13px] font-bold text-[#e31e2d]">
+                            {matchedMenu.price.toLocaleString()}원
+                          </span>
+                        </div>
+                      )}
                     </div>
                     <ChevronRight size={16} className="shrink-0 text-[#c0c0c0]" />
                   </button>
