@@ -333,7 +333,7 @@ function RoleModal({
         )}
         <button
           type="button"
-          disabled={isPending}
+          disabled={isPending || (role === 'RESTAURANT_ADMIN' && !restaurantId)}
           onClick={() => mutate()}
           className="mt-1 w-full rounded-xl bg-[#e31e2d] py-3.5 text-[14px] font-bold text-white disabled:opacity-40"
         >
