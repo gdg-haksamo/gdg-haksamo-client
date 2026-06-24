@@ -1,27 +1,17 @@
-import { useEffect, useRef, useState, useMemo } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { animate, motion, useMotionValue, useTransform } from 'framer-motion'
 import { RefreshCw } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import CafeteriaTabMenu from '@/components/home/CafeteriaTabMenu'
 import MealCard from '@/components/home/MealCard'
 import RecommendedMenuCard from '@/components/home/RecommendedMenuCard'
-import CafeteriaBottomSheet from '@/components/search/CafeteriaBottomSheet'
 import type { MealMenuItemType } from '@/components/home/MealMenuItem'
-import type { CafeteriaInfo } from '@/components/search/types'
 import { getMenus } from '@/apis/menus'
-import { getRestaurants, getRestaurantMenus } from '@/apis/restaurants'
 import type { MenuResponse } from '@/apis/types'
 import { MOCK_RECOMMENDED_MENUS } from '@/mocks/home'
 
 const PULL_THRESHOLD = 70
 const MAX_PULL = 90
-
-const CAFETERIA_META: Record<string, string> = {
-  공식당: '공대1호관 1층',
-  복지관: '학생복지관 1층',
-  정보센터: '종합정보센터 1층',
-  '카페테리아 첨성': '첨성관 1층',
-}
 
 function getCurrentMealType() {
   const hour = new Date().getHours()
@@ -40,6 +30,12 @@ const toMenuItem = (menu: MenuResponse): MealMenuItemType => ({
   price: menu.price,
 })
 
+const matchRestaurant = (menuRestaurant: string, tabName: string) => {
+  const a = menuRestaurant.trim()
+  const b = tabName.trim()
+  return a === b || a.includes(b) || b.includes(a)
+}
+
 export default function HomePage() {
   const currentMeal = getCurrentMealType()
   const today = toDateString(new Date())
@@ -49,52 +45,16 @@ export default function HomePage() {
     queryFn: () => getMenus(today),
   })
 
-  const { data: restaurants } = useQuery({
-    queryKey: ['restaurants'],
-    queryFn: getRestaurants,
-  })
-
-  const breakfast = data?.breakfast.menus.map(toMenuItem) ?? []
-  const lunch = data?.lunch.menus.map(toMenuItem) ?? []
-  const dinner = data?.dinner.menus.map(toMenuItem) ?? []
-
   const [menuIndex, setMenuIndex] = useState(0)
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [selectedCafeteriaName, setSelectedCafeteriaName] = useState<string>('공식당')
 
-  // 바텀시트용 선택된 식당
-  const [selectedCafeteriaName, setSelectedCafeteriaName] = useState<string | null>(null)
+  const filterMenus = (menus: MenuResponse[]) =>
+    menus.filter((m) => matchRestaurant(m.restaurant, selectedCafeteriaName))
 
-  const matchName = (a: string, b: string) =>
-    a.trim() === b.trim() || a.includes(b.trim()) || b.includes(a.trim())
-
-  const selectedRestaurant = useMemo(
-    () =>
-      selectedCafeteriaName
-        ? restaurants?.find((r) => matchName(r.name, selectedCafeteriaName))
-        : undefined,
-    [selectedCafeteriaName, restaurants],
-  )
-
-  const { data: selectedMenus } = useQuery({
-    queryKey: ['restaurant-menus', selectedRestaurant?.restaurantId],
-    queryFn: () => getRestaurantMenus(selectedRestaurant!.restaurantId),
-    enabled: !!selectedRestaurant,
-  })
-
-  const selectedCafeteria = useMemo<CafeteriaInfo | null>(() => {
-    if (!selectedCafeteriaName) return null
-    return {
-      id: String(selectedRestaurant?.restaurantId ?? selectedCafeteriaName),
-      name: selectedCafeteriaName,
-      building: CAFETERIA_META[selectedCafeteriaName] ?? '',
-      position: { x: 0, y: 0 },
-      menus: (selectedMenus ?? []).map((m) => ({
-        menuId: m.menuId,
-        name: m.name,
-        price: m.price,
-      })),
-    }
-  }, [selectedCafeteriaName, selectedRestaurant, selectedMenus])
+  const breakfast = filterMenus(data?.breakfast.menus ?? []).map(toMenuItem)
+  const lunch = filterMenus(data?.lunch.menus ?? []).map(toMenuItem)
+  const dinner = filterMenus(data?.dinner.menus ?? []).map(toMenuItem)
 
   const containerRef = useRef<HTMLDivElement>(null)
   const isRefreshingRef = useRef(false)
@@ -222,11 +182,6 @@ export default function HomePage() {
           <MealCard mealType="저녁" items={dinner} defaultOpen={currentMeal === '저녁'} />
         </div>
       </div>
-
-      <CafeteriaBottomSheet
-        cafeteria={selectedCafeteria}
-        onClose={() => setSelectedCafeteriaName(null)}
-      />
     </div>
   )
 }
