@@ -1,4 +1,4 @@
-import { httpGet, httpPost } from './http'
+import { httpDelete, httpGet, httpPost } from './http'
 import { ENDPOINTS } from './endpoints'
 
 // 리뷰 목록 조회 응답 타입
@@ -29,3 +29,6 @@ export const createReview = (menuId: number, data: ReviewCreateRequest) =>
 
 // 도움됐어요 토글
 export const toggleHelpful = (reviewId: number) => httpPost(ENDPOINTS.REVIEWS.HELPFUL(reviewId))
+
+// 리뷰 삭제
+export const deleteReview = (reviewId: number) => httpDelete(ENDPOINTS.REVIEWS.DELETE(reviewId))
