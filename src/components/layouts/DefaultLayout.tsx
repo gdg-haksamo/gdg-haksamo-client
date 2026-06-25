@@ -19,7 +19,7 @@ export default function DefaultLayout() {
     <div className="min-h-dvh bg-white md:bg-[#eceef3]">
       <div className="mx-auto flex h-dvh w-full max-w-[600px] flex-col overflow-hidden bg-white md:shadow-[0_0_20px_rgba(29,32,56,0.14)]">
         <Header showBack={showBack} />
-        <main ref={mainRef} className="flex flex-1 flex-col overflow-y-auto">
+        <main ref={mainRef} className="flex flex-1 flex-col overflow-y-auto scrollbar-hide">
           <Outlet />
         </main>
         <Footer />

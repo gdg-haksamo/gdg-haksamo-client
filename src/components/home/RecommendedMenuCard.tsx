@@ -6,6 +6,7 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import FoodPreferenceModal from './FoodPreferenceModal'
 import hobanWoo from '@/assets/hoban-woo.svg'
 import { getTodayRecommendation, refreshRecommendation } from '@/apis/modules/recommendations'
+import { getAccessToken } from '@/apis/http'
 import type { TodayRecommendationResponse } from '@/apis/types'
 
 const ITEM_HEIGHT = 44
@@ -25,7 +26,7 @@ function SlotMachine({ items, targetIdx }: { items: string[]; targetIdx: number 
     .fill(items)
     .flat()
   const finalPos = LOOPS * items.length + targetIdx
-  const targetY = -(finalPos * ITEM_HEIGHT)
+  const targetY = -Math.round(finalPos * ITEM_HEIGHT)
   const y = useMotionValue(0)
 
   useEffect(() => {
@@ -40,8 +41,14 @@ function SlotMachine({ items, targetIdx }: { items: string[]; targetIdx: number 
     <div className="w-48 overflow-hidden rounded-xl bg-white/20" style={{ height: ITEM_HEIGHT }}>
       <motion.div style={{ y }}>
         {reel.map((name, i) => (
-          <div key={i} className="flex items-center justify-center" style={{ height: ITEM_HEIGHT }}>
-            <span className="text-[16px] font-bold text-white drop-shadow-sm">{name}</span>
+          <div
+            key={i}
+            className="flex items-center justify-center overflow-hidden px-2"
+            style={{ height: ITEM_HEIGHT }}
+          >
+            <span className="w-full truncate text-center text-[16px] font-bold text-white drop-shadow-sm">
+              {name}
+            </span>
           </div>
         ))}
       </motion.div>
@@ -51,6 +58,7 @@ function SlotMachine({ items, targetIdx }: { items: string[]; targetIdx: number 
 
 export default function RecommendedMenuCard({ refreshRef }: Props) {
   const navigate = useNavigate()
+  const hasToken = !!getAccessToken()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [recs, setRecs] = useState<TodayRecommendationResponse[]>([])
   const recsRef = useRef<TodayRecommendationResponse[]>([])
@@ -61,6 +69,7 @@ export default function RecommendedMenuCard({ refreshRef }: Props) {
   const { data: initialRec } = useQuery({
     queryKey: ['recommendation-today'],
     queryFn: () => getTodayRecommendation(),
+    enabled: hasToken,
   })
 
   useEffect(() => {
