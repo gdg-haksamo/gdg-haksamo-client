@@ -54,7 +54,7 @@ export default function MealCard({ mealType, items, defaultOpen = false }: MealC
             style={{ overflow: 'hidden' }}
           >
             <div
-              className="overflow-y-auto"
+              className="overflow-y-auto scrollbar-hide"
               style={{
                 maxHeight: items.length > VISIBLE_MENU_COUNT ? MENU_LIST_MAX_HEIGHT : undefined,
               }}
