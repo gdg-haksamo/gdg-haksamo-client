@@ -15,7 +15,7 @@ export function SelectRestaurant() {
     queryFn: getMyPage,
   })
 
-  const serverId = myData?.favoriteRestaurants?.[0]?.restaurantId ?? null
+  const serverId = myData?.favoriteRestaurant?.restaurantId ?? null
   const selectedId = isEditing ? draft : serverId
 
   const startEdit = () => {
