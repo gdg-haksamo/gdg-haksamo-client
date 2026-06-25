@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import ReviewCard from '@/components/review/ReviewCard'
+import ReviewEventBanner from '@/components/review/ReviewEventBanner'
 import ReviewFilters from '@/components/review/ReviewFilters'
 import ReviewWriteFab from '@/components/review/ReviewWriteFab'
 import ReviewWriteModal, { type ReviewWriteFormData } from '@/components/review/ReviewWriteModal'
@@ -122,9 +123,7 @@ export default function ReviewPage() {
   return (
     <>
       <div className="flex flex-col gap-5 p-5 pb-24">
-        <div className="h-15 flex items-center justify-center rounded-[12px] border border-[#F0F0F0] bg-white shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]">
-          리뷰 이벤트 배너
-        </div>
+        <ReviewEventBanner />
 
         <ReviewFilters
           activeTab={activeTab}
