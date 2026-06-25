@@ -24,7 +24,7 @@ export function SelectRestaurant() {
   }
 
   const { mutate: save, isPending } = useMutation({
-    mutationFn: () => updateFavoriteRestaurants(draft != null ? [draft] : []),
+    mutationFn: () => updateFavoriteRestaurants(draft),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['me'] })
       setIsEditing(false)
