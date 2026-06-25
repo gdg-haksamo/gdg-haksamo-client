@@ -25,7 +25,7 @@ function SlotMachine({ items, targetIdx }: { items: string[]; targetIdx: number 
     .fill(items)
     .flat()
   const finalPos = LOOPS * items.length + targetIdx
-  const targetY = -(finalPos * ITEM_HEIGHT)
+  const targetY = -Math.round(finalPos * ITEM_HEIGHT)
   const y = useMotionValue(0)
 
   useEffect(() => {
@@ -40,8 +40,14 @@ function SlotMachine({ items, targetIdx }: { items: string[]; targetIdx: number 
     <div className="w-48 overflow-hidden rounded-xl bg-white/20" style={{ height: ITEM_HEIGHT }}>
       <motion.div style={{ y }}>
         {reel.map((name, i) => (
-          <div key={i} className="flex items-center justify-center" style={{ height: ITEM_HEIGHT }}>
-            <span className="text-[16px] font-bold text-white drop-shadow-sm">{name}</span>
+          <div
+            key={i}
+            className="flex items-center justify-center overflow-hidden px-2"
+            style={{ height: ITEM_HEIGHT }}
+          >
+            <span className="w-full truncate text-center text-[16px] font-bold text-white drop-shadow-sm">
+              {name}
+            </span>
           </div>
         ))}
       </motion.div>
