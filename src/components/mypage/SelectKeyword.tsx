@@ -16,10 +16,11 @@ export function SelectKeyword() {
   })
   const { data: myData } = useQuery({ queryKey: ['me'], queryFn: getMyPage })
 
-  // API는 라벨 문자열로 내려줌 → 코드로 변환해서 사용
-  const serverLabels = myData?.preferenceKeywords ?? []
+  const serverValues = myData?.preferenceKeywords ?? []
   const serverCodes: KeywordCode[] =
-    keywords?.filter((kw) => serverLabels.includes(kw.label)).map((kw) => kw.name) ?? []
+    keywords
+      ?.filter((kw) => serverValues.includes(kw.name) || serverValues.includes(kw.label))
+      .map((kw) => kw.name) ?? []
 
   const selected = isEditing ? draft : serverCodes
 
