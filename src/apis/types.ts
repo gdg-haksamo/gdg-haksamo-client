@@ -145,7 +145,7 @@ export interface MyPageResponse {
   reviewCount: number
   helpfulReceivedCount: number
   activeEventCount: number | null
-  favoriteRestaurants: RestaurantResponse[]
+  favoriteRestaurant: RestaurantResponse | null
   preferenceKeywords: string[]
   notificationSettings: NotificationSettingsResponse
 }
