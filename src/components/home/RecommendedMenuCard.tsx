@@ -6,6 +6,7 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import FoodPreferenceModal from './FoodPreferenceModal'
 import hobanWoo from '@/assets/hoban-woo.svg'
 import { getTodayRecommendation, refreshRecommendation } from '@/apis/modules/recommendations'
+import { getAccessToken } from '@/apis/http'
 import type { TodayRecommendationResponse } from '@/apis/types'
 
 const ITEM_HEIGHT = 44
@@ -57,6 +58,7 @@ function SlotMachine({ items, targetIdx }: { items: string[]; targetIdx: number 
 
 export default function RecommendedMenuCard({ refreshRef }: Props) {
   const navigate = useNavigate()
+  const hasToken = !!getAccessToken()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [recs, setRecs] = useState<TodayRecommendationResponse[]>([])
   const recsRef = useRef<TodayRecommendationResponse[]>([])
@@ -67,6 +69,7 @@ export default function RecommendedMenuCard({ refreshRef }: Props) {
   const { data: initialRec } = useQuery({
     queryKey: ['recommendation-today'],
     queryFn: () => getTodayRecommendation(),
+    enabled: hasToken,
   })
 
   useEffect(() => {
