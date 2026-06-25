@@ -5,6 +5,7 @@ import { ENDPOINTS } from './endpoints'
 export type ReviewResponse = {
   reviewId: number
   userId: number
+  authorNickname: string
   restaurant: string
   menuName: string
   rating: number

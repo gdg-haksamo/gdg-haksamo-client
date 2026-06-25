@@ -54,7 +54,7 @@ export default function ReviewCard({ review, currentUserId, onDelete }: ReviewCa
             <User size={16} className="text-[#A0A0A0]" />
           </div>
           <div className="flex flex-col">
-            <p className="text-[14px] font-bold text-black">user {review.userId}</p>
+            <p className="text-[14px] font-bold text-black">{review.authorNickname}</p>
             <p className="text-[10px] text-[#A0A0A0]">{formatReviewDate(review.createdAt)}</p>
           </div>
         </div>
