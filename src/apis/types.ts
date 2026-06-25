@@ -21,7 +21,7 @@ export interface SignUpRequest {
   password: string
   nickname: string
   department?: string
-  restaurantIds?: number[]
+  restaurantId?: number
   keywords?: KeywordCode[]
 }
 
@@ -72,6 +72,7 @@ export interface NutritionInfo {
 
 export interface PopularReviewResponse {
   userId: number
+  authorNickname: string
   createdAt: string
   rating: number
   content: string | null
@@ -151,7 +152,7 @@ export interface MyPageResponse {
 }
 
 export interface FavoriteRestaurantsUpdateRequest {
-  restaurantIds: number[]
+  restaurantId: number | null
 }
 
 export type KeywordCode =

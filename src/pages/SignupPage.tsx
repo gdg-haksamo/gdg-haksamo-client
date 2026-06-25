@@ -194,7 +194,7 @@ export default function SignupPage() {
         password,
         nickname,
         department: department || undefined,
-        restaurantIds: selectedRestaurantId != null ? [selectedRestaurantId] : undefined,
+        restaurantId: selectedRestaurantId ?? undefined,
         keywords: selectedKeywords.length > 0 ? (selectedKeywords as KeywordCode[]) : undefined,
       })
       const { accessToken } = await login({ email, password })

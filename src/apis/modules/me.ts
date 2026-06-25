@@ -11,9 +11,9 @@ import type {
 
 export const getMyPage = () => httpGet<MyPageResponse>(ENDPOINTS.ME.PROFILE)
 
-export const updateFavoriteRestaurants = (restaurantIds: number[]) =>
+export const updateFavoriteRestaurants = (restaurantId: number | null) =>
   httpPatch(ENDPOINTS.ME.FAVORITE_RESTAURANTS, {
-    restaurantIds,
+    restaurantId,
   } satisfies FavoriteRestaurantsUpdateRequest)
 
 export const updatePreferences = (keywords: KeywordCode[]) =>
