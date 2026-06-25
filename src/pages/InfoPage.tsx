@@ -15,7 +15,7 @@ function formatDate(iso: string): string {
 
 const toReviewItem = (r: PopularReviewResponse, i: number): ReviewItem => ({
   id: `${r.userId}-${i}`,
-  authorName: `사용자 #${r.userId}`,
+  authorName: r.authorNickname,
   date: formatDate(r.createdAt),
   rating: r.rating,
   content: r.content ?? '',
